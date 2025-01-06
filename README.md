@@ -17,11 +17,6 @@ A simple GUI tool for managing mods in a specific game folder. Created for perso
 4. Drag & drop mod ZIP files
 5. Done!
 
-## ❓ Issues?
-- App needs write permissions
-- Check if MODAPI is installed
-- Default mods path: Downloads/[modapi_folder]/mods/TheForest
-
 ## ❤️ Like it?
 Leave a ⭐ on GitHub!
 
@@ -44,10 +39,6 @@ Leave a ⭐ on GitHub!
 4. Przeciągnij i upuść plik ZIP z modami lub wybierz go przyciskiem
 5. Gotowe! Uruchom grę przez MODAPI i ciesz się modami
 
-## ❓ Masz problem?
-- Program musi mieć uprawnienia do zapisu w folderze modów
-- Upewnij się, że masz zainstalowane MODAPI
-- Folder modów zwykle znajduje się w Pobrane/[folder_modapi]/mods/TheForest
 
 ## ❤️ Podoba Ci się?
 Zostaw ⭐ na GitHubie!
