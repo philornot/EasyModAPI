@@ -1,18 +1,23 @@
 """
 build.py - Script do budowania aplikacji
 """
-import PyInstaller.__main__
 import os
 import shutil
-from pathlib import Path
+import PyInstaller.__main__
+from src.logger import setup_logger
 
-# Wyczyść folder dist
-if os.path.exists("dist"):
-    shutil.rmtree("dist")
+logger = setup_logger("ForestModManagerBuild")
 
-# Stwórz tymczasowy plik .spec
-SPEC_CONTENT = '''
-# -*- mode: python ; coding: utf-8 -*-
+
+def clean_dist():
+    if os.path.exists("dist"):
+        logger.info("Cleaning dist directory")
+        shutil.rmtree("dist")
+
+
+def create_spec():
+    logger.info("Creating .spec file")
+    SPEC_CONTENT = '''# -*- mode: python ; coding: utf-8 -*-
 
 a = Analysis(
     ['src/app.py'],
@@ -20,9 +25,11 @@ a = Analysis(
     binaries=[],
     datas=[
         ('assets/icons/*.png', 'assets/icons'),
-        ('assets/fonts/*.ttf', 'assets/fonts')
+        ('assets/fonts/*.ttf', 'assets/fonts'),
+        ('src/ui', 'src/ui'),
+        ('src/__init__.py', 'src'),
     ],
-    hiddenimports=['customtkinter'],
+    hiddenimports=['customtkinter', 'src.ui'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -54,17 +61,30 @@ exe = EXE(
     icon='assets/icons/app.ico'
 )
 '''
+    with open('forest_mod_manager.spec', 'w', encoding='utf-8') as f:
+        f.write(SPEC_CONTENT)
 
-with open('forest_mod_manager.spec', 'w', encoding='utf-8') as f:
-    f.write(SPEC_CONTENT)
 
-# Uruchom PyInstaller z plikiem .spec
-PyInstaller.__main__.run([
-    'forest_mod_manager.spec',
-    '--clean'
-])
+def build():
+    try:
+        logger.info("Starting build process")
+        clean_dist()
+        create_spec()
 
-# Usuń tymczasowy plik .spec
-os.remove('forest_mod_manager.spec')
+        logger.info("Running PyInstaller")
+        PyInstaller.__main__.run([
+            'forest_mod_manager.spec',
+            '--clean'
+        ])
 
-print("✨ Build completed! Executable is in the 'dist' folder.")
+        logger.info("Cleaning up .spec file")
+        os.remove('forest_mod_manager.spec')
+
+        logger.info("✨ Build completed successfully!")
+    except Exception as e:
+        logger.error(f"Build failed: {str(e)}", exc_info=True)
+        raise
+
+
+if __name__ == "__main__":
+    build()

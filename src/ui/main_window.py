@@ -1,5 +1,5 @@
 """
-src/ui/main_window.py - Główne okno aplikacji
+src/ui/main_window.py
 """
 import os
 import subprocess
@@ -8,23 +8,26 @@ from pathlib import Path
 from tkinter import filedialog
 
 import customtkinter as ctk
+from tkinterdnd2 import TkinterDnD
 
 from .components import (
     Card, GradientButton, SecondaryButton,
-    Title, Subtitle, StatusLabel, IconButton
+    Title, Subtitle, StatusLabel, IconButton,
+    FileDropZone
 )
 from .styles import Colors
 from ..config import Config
 from ..installer import ModInstaller
+from ..logger import setup_logger
+
+logger = setup_logger("MainWindow")
 
 
 def get_logs_dir():
-    """Zwraca ścieżkę do folderu z logami"""
     return Path.home() / '.forest_mod_manager' / 'logs'
 
 
 def get_latest_log():
-    """Zwraca najnowszy plik logu"""
     logs_dir = get_logs_dir()
     log_files = list(logs_dir.glob("*.log"))
     if log_files:
@@ -33,59 +36,64 @@ def get_latest_log():
 
 
 def open_file_explorer(path, select_file=None):
-    """
-    Otwiera eksplorator plików w podanej lokalizacji.
-    Jeśli podano select_file, próbuje go wybrać.
-    """
-    if sys.platform == 'win32':
-        if select_file:
-            # Na Windows używamy explorer z parametrem /select,
-            # który podświetli wybrany plik
-            subprocess.run(['explorer', '/select,', str(select_file)])
+    path = Path(path)
+    logger.debug(f"Opening file explorer: path={path}, select_file={select_file}")
+
+    try:
+        if sys.platform == 'win32':
+            if select_file:
+                logger.debug("Using Windows explorer with file selection")
+                subprocess.run(['explorer', '/select,', str(select_file)])
+            else:
+                logger.debug("Using Windows startfile")
+                os.startfile(path)
+        elif sys.platform == 'darwin':
+            logger.debug("Using macOS open command")
+            if select_file:
+                subprocess.run(['open', '-R', str(select_file)])
+            else:
+                subprocess.run(['open', str(path)])
         else:
-            os.startfile(path)
-    elif sys.platform == 'darwin':  # macOS
-        if select_file:
-            subprocess.run(['open', '-R', str(select_file)])
-        else:
-            subprocess.run(['open', str(path)])
-    else:  # Linux
-        # Na Linux używamy domyślnego menedżera plików
-        # Nie ma standardowego sposobu na wybranie pliku
-        subprocess.run(['xdg-open', str(path)])
+            logger.debug("Using Linux xdg-open")
+            subprocess.run(['xdg-open', str(path)])
+    except Exception as e:
+        logger.error(f"Failed to open file explorer: {e}", exc_info=True)
 
 
-class MainWindow(ctk.CTk):
+class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
     def __init__(self):
+        logger.info("Initializing main window")
         super().__init__()
+        self.TkdndVersion = TkinterDnD._require(self)
+        logger.debug(f"TkinterDnD version: {self.TkdndVersion}")
 
         self.config = Config()
-
         self.title("The Forest Mod Manager")
         self.geometry("600x500")
+
         self._setup_window()
         self._create_widgets()
 
-        # Aktywuj/deaktywuj drop zone w zależności od obecności ścieżki
         if self.config.modapi_path:
+            logger.info(f"Found existing MODAPI path: {self.config.modapi_path}")
             self.drop_zone.activate()
             self._update_status()
         else:
+            logger.info("No MODAPI path configured")
             self.drop_zone.deactivate()
 
     def _setup_window(self):
-        """Konfiguracja głównego okna"""
+        logger.debug("Setting up window properties")
         self.configure(fg_color=Colors.BACKGROUND)
-
-        # Grid configuration
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
 
-        # Efekt szkła (Windows 11)
         try:
             from ctypes import windll, c_int, byref, sizeof
             DWMWA_USE_IMMERSIVE_DARK_MODE = 20
             DWMWA_MICA_EFFECT = 1029
+
+            logger.debug("Applying Windows 11 visual effects")
             windll.dwmapi.DwmSetWindowAttribute(
                 self.winfo_id(),
                 DWMWA_USE_IMMERSIVE_DARK_MODE,
@@ -98,32 +106,45 @@ class MainWindow(ctk.CTk):
                 byref(c_int(1)),
                 sizeof(c_int)
             )
-        except:
-            pass
+            logger.debug("Windows 11 effects applied successfully")
+        except Exception as e:
+            logger.warning(f"Failed to apply Windows 11 effects: {e}")
 
     def _create_widgets(self):
-        """Tworzenie interfejsu"""
+        logger.debug("Creating widgets")
+
         # Header
         header = Card(self)
         header.grid(row=0, column=0, padx=20, pady=20, sticky="ew")
+        header.grid_columnconfigure(0, weight=1)
 
-        Title(header, text="The Forest Mod Manager").pack(pady=10)
+        header_content = ctk.CTkFrame(header, fg_color="transparent")
+        header_content.pack(pady=10, fill="x")
+        header_content.grid_columnconfigure(1, weight=1)
+
+        Title(header_content, text="The Forest Mod Manager").grid(row=0, column=1, pady=(0, 5))
         Subtitle(
-            header,
+            header_content,
             text="Łatwa instalacja modów"
-        ).pack(pady=(0, 10))
+        ).grid(row=1, column=1)
 
-        # Main content
+        logs_button = IconButton(
+            header_content,
+            text="📋",
+            tooltip_text="Otwórz folder z logami",
+            command=self._open_logs_folder
+        )
+        logs_button.grid(row=0, column=2, rowspan=2, padx=10)
+
+        # Content
         content = Card(self)
         content.grid(row=1, column=0, padx=20, pady=(0, 20), sticky="nsew")
         content.grid_columnconfigure(0, weight=1)
         content.grid_rowconfigure(1, weight=1)
 
-        # Status
         self.status_label = StatusLabel(content)
         self.status_label.grid(row=0, column=0, pady=20, padx=20)
 
-        # Drop zone
         self.drop_zone = FileDropZone(
             content,
             on_file_drop=self._handle_zip,
@@ -135,7 +156,6 @@ class MainWindow(ctk.CTk):
             sticky="nsew"
         )
 
-        # Buttons container
         button_frame = ctk.CTkFrame(content, fg_color="transparent")
         button_frame.grid(row=2, column=0, padx=20, pady=(0, 20))
 
@@ -151,76 +171,89 @@ class MainWindow(ctk.CTk):
             command=self._open_mods_folder
         ).pack(side="left", padx=5)
 
-        # Logs button (bottom right corner)
-        logs_button = IconButton(
-            content,
-            text="📋",  # Można zastąpić ikoną
-            command=self._open_logs_folder,
-            tooltip_text="Otwórz folder z logami"
-        )
-        logs_button.grid(row=2, column=0, padx=(0, 10), pady=(0, 10), sticky="se")
-
     def _select_modapi_folder(self):
-        """Wybór folderu MODAPI"""
+        """Wybór głównego folderu MODAPI."""
+        logger.info("Opening MODAPI folder selection dialog")
         folder = filedialog.askdirectory(
-            title="Wybierz folder MODAPI/mods/TheForest"
+            title="Wybierz główny folder MODAPI"
         )
         if folder:
+            logger.info(f"Selected MODAPI folder: {folder}")
+            installer = ModInstaller(folder)
+
+            if not installer.verify_paths():
+                logger.warning("Invalid MODAPI folder structure")
+                self.status_label.set_error(
+                    "Nieprawidłowy folder!\nWybierz główny folder MODAPI."
+                )
+                return
+
             self.config.modapi_path = folder
             self._update_status()
             self.drop_zone.activate()
+        else:
+            logger.debug("MODAPI folder selection cancelled")
 
     def _update_status(self):
-        """Aktualizacja statusu"""
         path = Path(self.config.modapi_path)
+        logger.debug(f"Updating status with path: {path}")
         self.status_label.set_success(
             f"✓ Folder MODAPI:\n{path.name}"
         )
 
     def _handle_zip(self, zip_path):
-        """Obsługa pliku ZIP z modami"""
+        logger.info(f"Handling ZIP file: {zip_path}")
         if not self.config.modapi_path:
+            logger.warning("No MODAPI path configured")
             self.status_label.set_error(
                 "Najpierw wybierz folder MODAPI!"
             )
             return
 
         try:
+            logger.info("Starting mod installation")
             installer = ModInstaller(self.config.modapi_path)
             installer.install_mods(zip_path)
+            logger.info("Mods installed successfully")
 
             self.status_label.set_success(
                 "✓ Mody zainstalowane pomyślnie!"
             )
 
         except Exception as e:
+            logger.error(f"Failed to install mods: {e}", exc_info=True)
             self.status_label.set_error(f"Błąd: {str(e)}")
 
     def _open_mods_folder(self):
-        """Otwiera folder z modami w eksploratorze"""
+        """Otwiera folder mods/TheForest."""
         if not self.config.modapi_path:
+            logger.warning("Cannot open mods folder - no MODAPI path configured")
             self.status_label.set_error(
                 "Najpierw wybierz folder MODAPI!"
             )
             return
 
-        path = Path(self.config.modapi_path)
-        if path.exists():
-            open_file_explorer(path)
+        installer = ModInstaller(self.config.modapi_path)
+        mods_path = installer.mods_path
+
+        if mods_path.exists():
+            logger.info(f"Opening mods folder: {mods_path}")
+            open_file_explorer(mods_path)
         else:
+            logger.error(f"Mods folder does not exist: {mods_path}")
             self.status_label.set_error(
-                "Folder nie istnieje!"
+                "Folder mods/TheForest nie istnieje!"
             )
 
     def _open_logs_folder(self):
-        """Otwiera folder z logami i wybiera najnowszy plik"""
+        logger.info("Opening logs folder")
         logs_dir = get_logs_dir()
         latest_log = get_latest_log()
 
         if logs_dir.exists():
             if latest_log:
-                # Otwórz folder z wybranym najnowszym plikiem
+                logger.debug(f"Opening logs folder with latest log selected: {latest_log}")
                 open_file_explorer(logs_dir, latest_log)
             else:
-                # Jeśli nie ma plików, po prostu otwórz folder
+                logger.debug("Opening logs folder (no logs present)")
                 open_file_explorer(logs_dir)
