@@ -2,6 +2,8 @@
 
 A simple GUI tool for managing mods in a specific game folder. Created for personal use among friends.
 
+![image](https://github.com/user-attachments/assets/7cc6f025-d9af-4f7b-82fb-20b9c54e329b)
+
 **Note:** This is an independent project and is not affiliated with, endorsed by, or connected to ModAPI, TheForest, or their respective developers.
 
 ## ✨ Features
@@ -25,7 +27,7 @@ Leave a ⭐ on GitHub!
 # 🌲 The Forest Mod Manager [PL]
 
 **Zmęczony ciągłym kopiowaniem modów do folderu MODAPI?** Ten program rozwiąże Twój problem!
-
+![image](https://github.com/user-attachments/assets/7cc6f025-d9af-4f7b-82fb-20b9c54e329b)
 ## ✨ Co potrafi?
 - **Ultra prosty w użyciu** - wybierasz ZIP z modami i gotowe!
 - **Nowoczesny design** - elegancki interfejs z efektem szkła i gradientami
