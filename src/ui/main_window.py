@@ -6,7 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 from tkinter import filedialog
-
+from PIL import Image
 import customtkinter as ctk
 from tkinterdnd2 import TkinterDnD
 
@@ -15,6 +15,7 @@ from .components import (
     Title, Subtitle, StatusLabel, FileDropZone, ModCard
 )
 from .styles import Colors
+from ..utils import get_asset_path
 from ..config import Config, MODS_DIR
 from ..installer import ModInstaller
 from ..logger import setup_logger
@@ -87,32 +88,24 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
             self.drop_zone.deactivate()
 
     def _setup_window(self):
-        logger.debug("Setting up window properties")
         self.configure(fg_color=Colors.BACKGROUND)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
 
+        # Set window icon
         try:
-            from ctypes import windll, c_int, byref, sizeof
-            DWMWA_USE_IMMERSIVE_DARK_MODE = 20
-            DWMWA_MICA_EFFECT = 1029
-
-            logger.debug("Applying Windows 11 visual effects")
-            windll.dwmapi.DwmSetWindowAttribute(
-                self.winfo_id(),
-                DWMWA_USE_IMMERSIVE_DARK_MODE,
-                byref(c_int(1)),
-                sizeof(c_int)
-            )
-            windll.dwmapi.DwmSetWindowAttribute(
-                self.winfo_id(),
-                DWMWA_MICA_EFFECT,
-                byref(c_int(1)),
-                sizeof(c_int)
-            )
-            logger.debug("Windows 11 effects applied successfully")
+            icon_path = get_asset_path("assets/icons/app.ico")
+            if os.path.exists(icon_path):
+                # For Windows
+                self.iconbitmap(default=icon_path)
+                # For other platforms
+                icon_image = Image.open(icon_path)
+                self.wm_iconphoto(True, ctk.CTkImage(
+                    light_image=icon_image,
+                    dark_image=icon_image,
+                    size=(32, 32))._light_image)
         except Exception as e:
-            logger.warning(f"Failed to apply Windows 11 effects: {e}")
+            logger.warning(f"Failed to set window icon: {e}", exc_info=True)
 
     def _create_widgets(self):
         logger.debug("Creating widgets")
