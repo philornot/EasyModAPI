@@ -37,7 +37,8 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-        ('assets/icons/*', 'assets/icons'),  # Include all icon files
+        ('assets/icons/*', 'assets/icons'),
+        ('locales', 'locales'),
         ('assets/fonts/*.ttf', 'assets/fonts'),
         ('src/ui', 'src/ui'),
         ('src/__init__.py', 'src'),

@@ -1,5 +1,5 @@
 """
-src/config.py - Zarządzanie konfiguracją aplikacji
+src/config.py - Configuration management
 """
 import json
 import os
@@ -14,12 +14,24 @@ MODS_DIR = Path.home() / '.forest_mod_manager' / 'mods'
 class Config:
     DEFAULT_CONFIG = {
         'modapi_path': None,
-        'saved_mods': []
+        'saved_mods': [],
+        'language': 'en'  # Default language
     }
 
     def __init__(self):
         self.config = self._load_config()
         self._ensure_mods_dir()
+
+    @property
+    def language(self):
+        """Get current language"""
+        return self.config.get('language', 'en')
+
+    @language.setter
+    def language(self, lang_code):
+        """Set and save language"""
+        self.config['language'] = lang_code
+        self.save()
 
     def _load_config(self):
         """Ładuje konfigurację z pliku lub tworzy domyślną"""
