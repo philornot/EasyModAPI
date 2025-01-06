@@ -44,3 +44,5 @@ Leave a ⭐ on GitHub!
 
 ## ❤️ Podoba Ci się?
 Zostaw ⭐ na GitHubie!
+
+![icon](https://github.com/philornot/EasyModAPI/blob/master/assets/icons/app.png)
