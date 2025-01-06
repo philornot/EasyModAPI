@@ -1,6 +1,9 @@
 """
 src/ui/components.py - Reużywalne komponenty UI
 """
+import zipfile
+from datetime import datetime
+from pathlib import Path
 from tkinter import filedialog
 
 import customtkinter as ctk
@@ -35,47 +38,11 @@ class SecondaryButton(ctk.CTkButton):
 class IconButton(ctk.CTkButton):
     """Przycisk z ikoną bez tła"""
 
-    def __init__(self, *args, tooltip_text=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         button_kwargs = Styles.ICON_BUTTON.copy()
         button_kwargs.update(kwargs)
         super().__init__(*args, **button_kwargs)
-        logger.debug(f"Created IconButton with tooltip: {tooltip_text}")
-
-        if tooltip_text:
-            self.tooltip = None
-            self.tooltip_text = tooltip_text
-            self.bind("<Enter>", self._show_tooltip)
-            self.bind("<Leave>", self._hide_tooltip)
-
-    def _show_tooltip(self, event):
-        if not hasattr(self, 'tooltip_text'):
-            return
-
-        try:
-            x, y = event.widget.winfo_rootx(), event.widget.winfo_rooty()
-            logger.debug(f"Showing tooltip at x={x}, y={y}")
-
-            self.tooltip = ctk.CTkToplevel()
-            self.tooltip.wm_overrideredirect(True)
-            self.tooltip.configure(fg_color=Colors.CARD)
-
-            label = ctk.CTkLabel(
-                self.tooltip,
-                text=self.tooltip_text,
-                text_color=Colors.TEXT,
-                fg_color=Colors.CARD
-            )
-            label.pack(padx=6, pady=4)
-
-            self.tooltip.wm_geometry(f"+{x}+{y - 30}")
-        except Exception as e:
-            logger.error(f"Failed to show tooltip: {e}")
-
-    def _hide_tooltip(self, event):
-        if self.tooltip:
-            logger.debug("Hiding tooltip")
-            self.tooltip.destroy()
-            self.tooltip = None
+        logger.debug("Created IconButton")
 
 
 class Card(ctk.CTkFrame):
@@ -128,6 +95,77 @@ class StatusLabel(ctk.CTkLabel):
     def set_warning(self, text):
         logger.debug(f"Setting warning status: {text}")
         self.configure(text=text, text_color=Colors.WARNING)
+
+
+class ModCard(Card):
+    """Karta wyświetlająca informacje o przesłanym pliku ZIP"""
+
+    def __init__(self, master, zip_path, on_install, on_remove, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        self.zip_path = Path(zip_path)
+
+        # Frame na zawartość
+        content = ctk.CTkFrame(self, fg_color="transparent")
+        content.pack(expand=True, fill="both", padx=8, pady=4)
+        content.grid_columnconfigure(1, weight=1)
+
+        # Nazwa pliku
+        ctk.CTkLabel(
+            content,
+            text=self.zip_path.name,
+            font=("Roboto", 13, "bold"),
+            text_color=Colors.TEXT
+        ).grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 2))
+
+        # Data dodania i liczba plików w jednym wierszu
+        info_frame = ctk.CTkFrame(content, fg_color="transparent")
+        info_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(0, 4))
+
+        # Data dodania
+        now = datetime.now().strftime("%d.%m.%Y %H:%M")
+        ctk.CTkLabel(
+            info_frame,
+            text=f"Dodano: {now}",
+            font=("Roboto", 11),
+            text_color=Colors.TEXT_SECONDARY
+        ).pack(side="left", padx=(0, 15))
+
+        # Liczba modów
+        try:
+            with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
+                mod_count = len(zip_ref.namelist())
+            mod_text = f"Liczba plików: {mod_count}"
+        except:
+            mod_text = "Nie można odczytać zawartości ZIP"
+
+        ctk.CTkLabel(
+            info_frame,
+            text=mod_text,
+            font=("Roboto", 11),
+            text_color=Colors.TEXT_SECONDARY
+        ).pack(side="left")
+
+        # Przyciski
+        button_frame = ctk.CTkFrame(content, fg_color="transparent")
+        button_frame.grid(row=2, column=0, columnspan=2, sticky="ew")
+
+        GradientButton(
+            button_frame,
+            text="Zainstaluj",
+            width=90,
+            height=28,
+            font=("Roboto", 12),
+            command=lambda: on_install(self.zip_path)
+        ).pack(side="left", padx=(0, 8))
+
+        SecondaryButton(
+            button_frame,
+            text="Usuń",
+            width=70,
+            height=28,
+            font=("Roboto", 12),
+            command=lambda: on_remove(self)
+        ).pack(side="left")
 
 
 class FileDropZone(Card):

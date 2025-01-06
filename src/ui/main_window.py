@@ -12,11 +12,10 @@ from tkinterdnd2 import TkinterDnD
 
 from .components import (
     Card, GradientButton, SecondaryButton,
-    Title, Subtitle, StatusLabel, IconButton,
-    FileDropZone
+    Title, Subtitle, StatusLabel, FileDropZone, ModCard
 )
 from .styles import Colors
-from ..config import Config
+from ..config import Config, MODS_DIR
 from ..installer import ModInstaller
 from ..logger import setup_logger
 
@@ -69,7 +68,10 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
 
         self.config = Config()
         self.title("The Forest Mod Manager")
-        self.geometry("600x500")
+        self.geometry("600x600")
+
+        # Lista kart z modami
+        self.mod_cards = []
 
         self._setup_window()
         self._create_widgets()
@@ -78,6 +80,8 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
             logger.info(f"Found existing MODAPI path: {self.config.modapi_path}")
             self.drop_zone.activate()
             self._update_status()
+            # Załaduj zapisane mody
+            self._load_saved_mods()
         else:
             logger.info("No MODAPI path configured")
             self.drop_zone.deactivate()
@@ -119,22 +123,32 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         header.grid_columnconfigure(0, weight=1)
 
         header_content = ctk.CTkFrame(header, fg_color="transparent")
-        header_content.pack(pady=10, fill="x")
-        header_content.grid_columnconfigure(1, weight=1)
+        header_content.pack(pady=10, fill="x", expand=True)
 
-        Title(header_content, text="The Forest Mod Manager").grid(row=0, column=1, pady=(0, 5))
+        # Centralna kolumna z tytułem
+        title_frame = ctk.CTkFrame(header_content, fg_color="transparent")
+        title_frame.pack(expand=True)
+
+        Title(title_frame, text="The Forest Mod Manager").pack(pady=(0, 5))
         Subtitle(
-            header_content,
+            title_frame,
             text="Łatwa instalacja modów"
-        ).grid(row=1, column=1)
+        ).pack()
 
-        logs_button = IconButton(
-            header_content,
-            text="📋",
-            tooltip_text="Otwórz folder z logami",
-            command=self._open_logs_folder
+        # Przycisk logów w prawym górnym rogu
+        logs_button_frame = ctk.CTkFrame(header_content, fg_color="transparent")
+        logs_button_frame.place(relx=1.0, rely=0.0, anchor="n", x=-30, y=20)
+
+        logs_button = SecondaryButton(
+            logs_button_frame,
+            text="logi",
+            command=self._open_logs_folder,
+            font=("Roboto", 11),
+            width=50,
+            height=24,
+            corner_radius=6
         )
-        logs_button.grid(row=0, column=2, rowspan=2, padx=10)
+        logs_button.pack()
 
         # Content
         content = Card(self)
@@ -145,16 +159,25 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         self.status_label = StatusLabel(content)
         self.status_label.grid(row=0, column=0, pady=20, padx=20)
 
-        self.drop_zone = FileDropZone(
+        # Scrollowany kontener na karty modów
+        self.scrollable_frame = ctk.CTkScrollableFrame(
             content,
-            on_file_drop=self._handle_zip,
+            fg_color="transparent",
             height=200
         )
-        self.drop_zone.grid(
+        self.scrollable_frame.grid(
             row=1, column=0,
             padx=20, pady=(0, 20),
             sticky="nsew"
         )
+
+        # Strefa drop na karty
+        self.drop_zone = FileDropZone(
+            self.scrollable_frame,
+            on_file_drop=self._handle_zip,
+            height=120  # Zmniejszona wysokość
+        )
+        self.drop_zone.pack(fill="x", expand=True)
 
         button_frame = ctk.CTkFrame(content, fg_color="transparent")
         button_frame.grid(row=2, column=0, padx=20, pady=(0, 20))
@@ -201,7 +224,35 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
             f"✓ Folder MODAPI:\n{path.name}"
         )
 
+    def _load_saved_mods(self):
+        """Ładuje zapisane mody przy starcie"""
+        logger.info("Loading saved mods")
+        for mod_info in self.config.get_saved_mods():
+            mod_path = MODS_DIR / mod_info['filename']
+            if mod_path.exists():
+                self._add_mod_card(mod_path)
+            else:
+                logger.warning(f"Mod file not found: {mod_path}")
+                self.config.remove_mod_file(mod_info['filename'])
+
+    def _add_mod_card(self, zip_path):
+        """Tworzy i dodaje kartę moda do interfejsu"""
+        try:
+            mod_card = ModCard(
+                self.scrollable_frame,
+                zip_path,
+                on_install=self._install_mods,
+                on_remove=self._remove_mod_card
+            )
+            mod_card.pack(fill="x", padx=3, pady=2)
+            self.mod_cards.append(mod_card)
+            return mod_card
+        except Exception as e:
+            logger.error(f"Failed to create mod card: {e}", exc_info=True)
+            return None
+
     def _handle_zip(self, zip_path):
+        """Obsługuje dodanie nowego pliku ZIP"""
         logger.info(f"Handling ZIP file: {zip_path}")
         if not self.config.modapi_path:
             logger.warning("No MODAPI path configured")
@@ -210,6 +261,22 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
             )
             return
 
+        try:
+            # Zapisz plik w folderze mods
+            saved_path = self.config.save_mod_file(zip_path)
+
+            # Dodaj kartę
+            if self._add_mod_card(saved_path):
+                self.status_label.set_success("✓ Plik ZIP został dodany!")
+            else:
+                raise Exception("Nie udało się utworzyć karty moda")
+
+        except Exception as e:
+            logger.error(f"Failed to handle ZIP file: {e}", exc_info=True)
+            self.status_label.set_error(f"Błąd: {str(e)}")
+
+    def _install_mods(self, zip_path):
+        """Instaluje mody z wybranego pliku ZIP"""
         try:
             logger.info("Starting mod installation")
             installer = ModInstaller(self.config.modapi_path)
@@ -223,6 +290,17 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         except Exception as e:
             logger.error(f"Failed to install mods: {e}", exc_info=True)
             self.status_label.set_error(f"Błąd: {str(e)}")
+
+    def _remove_mod_card(self, mod_card):
+        """Usuwa kartę moda z interfejsu i plik z dysku"""
+        logger.info(f"Removing mod card and file for: {mod_card.zip_path}")
+
+        # Usuń plik i wpis z konfiguracji
+        self.config.remove_mod_file(mod_card.zip_path.name)
+
+        # Usuń kartę z interfejsu
+        mod_card.destroy()
+        self.mod_cards.remove(mod_card)
 
     def _open_mods_folder(self):
         """Otwiera folder mods/TheForest."""

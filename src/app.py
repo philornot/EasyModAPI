@@ -1,14 +1,16 @@
 """
 src/app.py - Punkt wejściowy aplikacji
 """
-import sys
 import os
-from pathlib import Path
+import sys
+
 import customtkinter as ctk
-from src.ui.main_window import MainWindow
+
 from src.logger import setup_logger
+from src.ui.main_window import MainWindow
 
 logger = setup_logger()
+
 
 def get_asset_path(relative_path):
     """Zwraca właściwą ścieżkę do zasobów, działającą zarówno w trybie dev jak i w .exe"""
@@ -23,6 +25,7 @@ def get_asset_path(relative_path):
     logger.debug(f"Asset path resolved: {full_path}")
     return full_path
 
+
 def setup_appearance():
     """Konfiguracja wyglądu aplikacji"""
     logger.info("Setting up application appearance")
@@ -36,6 +39,7 @@ def setup_appearance():
     else:
         logger.warning(f"Custom font not found at: {font_path}")
 
+
 def main():
     try:
         logger.info("Starting Forest Mod Manager")
@@ -45,6 +49,7 @@ def main():
     except Exception as e:
         logger.error(f"Application crashed: {str(e)}", exc_info=True)
         raise
+
 
 if __name__ == "__main__":
     main()
