@@ -2,11 +2,10 @@
 src/logger.py - System logowania z kolorami i formatowaniem
 """
 import logging
-import coloredlogs
-import os
 from datetime import datetime
 from pathlib import Path
-import glob
+
+import coloredlogs
 
 # Dodaj własny poziom WTF
 WTF = 60  # Wyższy niż CRITICAL (50)
@@ -123,9 +122,6 @@ def setup_logger(name="ForestModManager"):
         datefmt='%d-%m-%Y %H:%M:%S',
         level_styles=LEVEL_STYLES
     )
-
-    # Zaloguj informację o nowym pliku
-    logger.info(f"Started logging to: {log_file.name}")
 
     return logger
 

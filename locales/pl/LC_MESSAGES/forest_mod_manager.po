@@ -1,0 +1,103 @@
+# Polish translations for Forest Mod Manager
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2025-01-06 21:45+0100\n"
+"PO-Revision-Date: 2025-01-06 21:45+0100\n"
+"Last-Translator: philornot\n"
+"Language: pl\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.16.0\n"
+
+msgid "The Forest Mod Manager"
+msgstr "The Forest Mod Manager"
+
+msgid "Easy mod installation"
+msgstr "Łatwa instalacja modów"
+
+msgid "logs"
+msgstr "logi"
+
+msgid "Select MODAPI folder"
+msgstr "Wybierz folder MODAPI"
+
+msgid "Open mods folder"
+msgstr "Otwórz folder modów"
+
+msgid "Select MODAPI main folder"
+msgstr "Wybierz główny folder MODAPI"
+
+msgid "Invalid folder!\nSelect MODAPI main folder."
+msgstr "Nieprawidłowy folder!\nWybierz główny folder MODAPI."
+
+msgid "✓ MODAPI Folder:\n{folder_name}"
+msgstr "✓ Folder MODAPI:\n{folder_name}"
+
+msgid "Select MODAPI folder first!"
+msgstr "Najpierw wybierz folder MODAPI!"
+
+msgid "✓ ZIP file has been added!"
+msgstr "✓ Plik ZIP został dodany!"
+
+msgid "Failed to create mod card"
+msgstr "Nie udało się utworzyć karty moda"
+
+msgid "Error: {error}"
+msgstr "Błąd: {error}"
+
+msgid "✓ Mods installed successfully!"
+msgstr "✓ Mody zainstalowane pomyślnie!"
+
+msgid "Folder mods/TheForest does not exist!"
+msgstr "Folder mods/TheForest nie istnieje!"
+
+msgid "Drop ZIP file with mods here\nor click to select"
+msgstr "Przeciągnij i upuść plik ZIP z modami\nlub kliknij aby wybrać"
+
+msgid "First select MODAPI folder!"
+msgstr "Najpierw wybierz folder MODAPI!"
+
+msgid "← Previous"
+msgstr "← Wstecz"
+
+msgid "Next →"
+msgstr "Dalej →"
+
+msgid "Got it!"
+msgstr "Rozumiem!"
+
+msgid "New version available!"
+msgstr "Dostępna nowa wersja!"
+
+msgid "Update to {version} available!"
+msgstr "Dostępna aktualizacja do wersji {version}!"
+
+msgid "Install"
+msgstr "Zainstaluj"
+
+msgid "Remove"
+msgstr "Usuń"
+
+msgid "Files count: {count}"
+msgstr "Liczba plików: {count}"
+
+msgid "Added: {date}"
+msgstr "Dodano: {date}"
+
+# Tutorial messages
+msgid "Hey there! 👋 Let's get your mods working!\n\nFirst, click the 'Select MODAPI folder' button to tell me where you installed MODAPI."
+msgstr "Cześć! 👋 Zainstalujmy twoje mody!\n\nNajpierw kliknij przycisk 'Wybierz folder MODAPI', aby wskazać gdzie zainstalowałeś MODAPI."
+
+msgid "Great! Now you can drag and drop your mod ZIP files here.\n\nDon't have any mods yet? No worries! You can download them from ModAPI website."
+msgstr "Świetnie! Teraz możesz przeciągnąć i upuścić tutaj pliki ZIP z modami.\n\nNie masz jeszcze modów? Nie martw się! Możesz je pobrać ze strony ModAPI."
+
+msgid "When you add mods, they'll appear as cards like this.\n\nYou can give them custom names (double-click to rename) and install them with one click!"
+msgstr "Gdy dodasz mody, pojawią się jako karty jak ta.\n\nMożesz nadać im własne nazwy (kliknij dwa razy, aby zmienić) i zainstalować jednym kliknięciem!"
+
+msgid "Need the app in a different language?\nJust click this button to switch between available languages."
+msgstr "Potrzebujesz aplikacji w innym języku?\nPo prostu kliknij ten przycisk, aby przełączyć między dostępnymi językami."
+
+msgid "And that's it! If you ever need to see this tutorial again, just click the '?' button down here.\n\nHappy modding! 🎮"
+msgstr "To wszystko! Jeśli kiedykolwiek będziesz chciał zobaczyć ten tutorial ponownie, po prostu kliknij przycisk '?' tutaj na dole.\n\nUdanego modowania! 🎮"

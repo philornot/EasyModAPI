@@ -1,11 +1,13 @@
 """
-src/ui/styles.py - Style dla interfejsu użytkownika
+src/ui/styles.py — Style dla interfejsu użytkownika
 """
+
 
 class Colors:
     """Paleta kolorów aplikacji"""
     # Główne kolory
     PRIMARY = "#5D3FD3"  # Fioletowy
+    PRIMARY_HOVER = "#4930A6"  # Ciemniejszy fiolet
     SECONDARY = "#A682FF"  # Jasny fiolet
     ACCENT = "#FF6B6B"  # Koralowy akcent
 
@@ -22,6 +24,11 @@ class Colors:
     ERROR = "#F7768E"  # Czerwony dla błędów
     SUCCESS = "#9ECE6A"  # Zielony dla sukcesu
     WARNING = "#E0AF68"  # Pomarańczowy dla ostrzeżeń
+
+    # ?
+    EASTER_EGG_TEXT = "#990000"
+    EASTER_EGG_OVERLAY = "#FFFFFF"
+
 
 class Styles:
     """Predefiniowane style dla komponentów"""

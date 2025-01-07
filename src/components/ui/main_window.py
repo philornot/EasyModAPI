@@ -11,16 +11,18 @@ import customtkinter as ctk
 from PIL import Image
 from tkinterdnd2 import TkinterDnD
 
-from .components import (
+from src.components import (
     Card, GradientButton, SecondaryButton,
-    Title, Subtitle, StatusLabel, FileDropZone, ModCard
+    Title, Subtitle, StatusLabel, FileDropZone, ModCard, AnimatedDeer, VersionLabel, HelpButton
 )
+from src.config import Config, MODS_DIR
+from src.i18n import _
+from src.i18n import set_language  # Import the translation function
+from src.installer import ModInstaller
+from src.logger import setup_logger
+from src.utils import get_asset_path
 from .styles import Colors
-from ..config import Config, MODS_DIR
-from ..i18n import _, set_language  # Import the translation function
-from ..installer import ModInstaller
-from ..logger import setup_logger
-from ..utils import get_asset_path
+from .tutorial_manager import Tutorial
 
 logger = setup_logger("MainWindow")
 
@@ -70,6 +72,7 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         logger.debug(f"TkinterDnD version: {self.TkdndVersion}")
 
         self.config = Config()
+        # self.config.set_egg_chance(100)  # odkomentuj do testów
         self.title(_("The Forest Mod Manager"))
         self.geometry("600x600")
 
@@ -97,19 +100,24 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
 
         try:
             icon_path = get_asset_path("assets/icons/app.ico")
-            if os.path.exists(icon_path):
+            if sys.platform == "win32":
                 self.iconbitmap(default=icon_path)
-                icon_image = Image.open(icon_path)
-                # it works so...
-                # noinspection PyTypeChecker, PyProtectedMember
-                self.wm_iconphoto(True, ctk.CTkImage(
-                    light_image=icon_image,
-                    dark_image=icon_image,
-                    size=(32, 32))._light_image)
+            else:
+                # Dla innych systemów próbuj ustawić ikonę przez PhotoImage
+                try:
+                    icon_image = Image.open(icon_path)
+                    photo_image = ctk.CTkImage(
+                        light_image=icon_image,
+                        dark_image=icon_image,
+                        size=(32, 32))
+                    self.iconphoto(True, photo_image._light_image)
+                except Exception as e:
+                    logger.warning(f"Failed to set window icon: {e}")
         except Exception as e:
             logger.warning(f"Failed to set window icon: {e}", exc_info=True)
 
     def _create_widgets(self):
+        """Tworzy widgety interfejsu"""
         logger.debug("Creating widgets")
 
         # Header
@@ -120,7 +128,7 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         header_content = ctk.CTkFrame(header, fg_color="transparent")
         header_content.pack(pady=10, fill="x", expand=True)
 
-        # Title column
+        # Centralna kolumna z tytułem
         title_frame = ctk.CTkFrame(header_content, fg_color="transparent")
         title_frame.pack(expand=True)
 
@@ -134,7 +142,7 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         buttons_frame = ctk.CTkFrame(header_content, fg_color="transparent")
         buttons_frame.place(relx=1.0, rely=0.5, anchor="e", x=-30)
 
-        logs_button = SecondaryButton(
+        self.logs_button = SecondaryButton(
             buttons_frame,
             text=_("logs"),
             command=self._open_logs_folder,
@@ -143,9 +151,9 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
             height=24,
             corner_radius=6
         )
-        logs_button.pack(pady=2)
+        self.logs_button.pack(pady=2)
 
-        lang_button = SecondaryButton(
+        self.lang_button = SecondaryButton(
             buttons_frame,
             text="polski" if self.config.language == "en" else "english",
             command=self._toggle_language,
@@ -154,7 +162,7 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
             height=24,
             corner_radius=6
         )
-        lang_button.pack(pady=2)
+        self.lang_button.pack(pady=2)
 
         # Content
         content = Card(self)
@@ -162,10 +170,13 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         content.grid_columnconfigure(0, weight=1)
         content.grid_rowconfigure(1, weight=1)
 
-        self.status_label = StatusLabel(content)
+        self.status_label = StatusLabel(
+            content,
+            text=_("First select MODAPI folder!")  # Default text when no MODAPI folder is selected
+        )
         self.status_label.grid(row=0, column=0, pady=20, padx=20)
 
-        # Scrollable container
+        # Scrollowany kontener
         self.scrollable_frame = ctk.CTkScrollableFrame(
             content,
             fg_color="transparent",
@@ -177,7 +188,7 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
             sticky="nsew"
         )
 
-        # Drop zone
+        # Strefa drop
         self.drop_zone = FileDropZone(
             self.scrollable_frame,
             on_file_drop=self._handle_zip,
@@ -188,17 +199,53 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         button_frame = ctk.CTkFrame(content, fg_color="transparent")
         button_frame.grid(row=2, column=0, padx=20, pady=(0, 20))
 
-        GradientButton(
-            button_frame,
+        # Główne przyciski
+        main_buttons = ctk.CTkFrame(button_frame, fg_color="transparent")
+        main_buttons.pack(side="left")
+
+        self.modapi_button = GradientButton(
+            main_buttons,
             text=_("Select MODAPI folder"),
             command=self._select_modapi_folder
-        ).pack(side="left", padx=5)
+        )
+        self.modapi_button.pack(side="left", padx=5)
 
-        SecondaryButton(
-            button_frame,
+        self.mods_folder_button = SecondaryButton(
+            main_buttons,
             text=_("Open mods folder"),
             command=self._open_mods_folder
-        ).pack(side="left", padx=5)
+        )
+        self.mods_folder_button.pack(side="left", padx=5)
+
+        # Etykieta wersji
+        self.version_label = VersionLabel(self, self.config)
+
+        # Przycisk pomocy
+        self.help_button = HelpButton(self, self._show_tutorial)
+
+        # Dodaj easter egg (10% szans)
+        if AnimatedDeer.should_appear(self.config):
+            self.deer = AnimatedDeer(self)
+            logger.info("A mysterious deer has appeared.")
+
+        # Sprawdź aktualizacje
+        self.after(1000, self.version_label.check_updates)
+
+    def _show_tutorial(self):
+        """Pokazuje tutorial"""
+
+        tutorial = Tutorial(self)
+
+        # Mapuj ID do faktycznych widgetów
+        tutorial.element_map = {
+            "modapi_button": self.modapi_button,
+            "drop_zone": self.drop_zone,
+            "mod_card": self.mod_cards[0] if self.mod_cards else self.drop_zone,
+            "language_button": self.lang_button,
+            "help_button": self.help_button
+        }
+
+        tutorial.start()
 
     def _select_modapi_folder(self):
         logger.info("Opening MODAPI folder selection dialog")

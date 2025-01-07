@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-06 21:45+0100\n"
+"POT-Creation-Date: 2025-01-07 19:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,69 +17,314 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
-#: src/ui/main_window.py:73 src/ui/main_window.py:127 src/ui/main_window.py:339
+#: src/components/version_label.py:34 src/update_checker.py:80
+msgid "New version available!"
+msgstr ""
+
+#: src/components/version_label.py:63 src/update_checker.py:109
+msgid "Update to {version} available!"
+msgstr ""
+
+#: src/components/buttons.py:17
+msgid "Created GradientButton with kwargs: {}"
+msgstr ""
+
+#: src/components/buttons.py:27
+msgid "Created SecondaryButton with kwargs: {}"
+msgstr ""
+
+#: src/components/buttons.py:37
+msgid "Created IconButton"
+msgstr ""
+
+#: src/components/drop_zone.py:20
+msgid "Initializing FileDropZone"
+msgstr ""
+
+#: src/components/drop_zone.py:24 src/components/ui/main_window.py:405
+msgid ""
+"Drop ZIP file with mods here\n"
+"or click to select"
+msgstr ""
+
+#: src/components/drop_zone.py:30
+msgid "Registering DND handlers"
+msgstr ""
+
+#: src/components/drop_zone.py:36
+msgid "Failed to register DND handlers: {}"
+msgstr ""
+
+#: src/components/drop_zone.py:47
+msgid "Drop ignored - zone inactive"
+msgstr ""
+
+#: src/components/drop_zone.py:52
+msgid "File dropped: {}"
+msgstr ""
+
+#: src/components/drop_zone.py:59
+msgid "Invalid file type dropped: {}"
+msgstr ""
+
+#: src/components/drop_zone.py:60
+msgid "Tylko pliki ZIP!"
+msgstr ""
+
+#: src/components/drop_zone.py:62
+msgid "Error handling file drop: {}"
+msgstr ""
+
+#: src/components/drop_zone.py:67
+msgid "Drag enter"
+msgstr ""
+
+#: src/components/drop_zone.py:74
+msgid "Drag leave"
+msgstr ""
+
+#: src/components/drop_zone.py:81
+msgid "Click ignored - zone inactive"
+msgstr ""
+
+#: src/components/drop_zone.py:84
+msgid "Opening file dialog"
+msgstr ""
+
+#: src/components/drop_zone.py:86
+msgid "Wybierz plik ZIP z modami"
+msgstr ""
+
+#: src/components/drop_zone.py:87
+msgid "Pliki ZIP"
+msgstr ""
+
+#: src/components/drop_zone.py:91
+msgid "File selected: {}"
+msgstr ""
+
+#: src/components/drop_zone.py:96
+msgid "Activating drop zone"
+msgstr ""
+
+#: src/components/drop_zone.py:100
+msgid ""
+"Przeciągnij i upuść plik ZIP z modami\n"
+"lub kliknij aby wybrać"
+msgstr ""
+
+#: src/components/drop_zone.py:106
+msgid "Deactivating drop zone"
+msgstr ""
+
+#: src/components/drop_zone.py:110
+msgid "Najpierw wybierz folder MODAPI!"
+msgstr ""
+
+#: src/components/easter_egg.py:19
+msgid "Initializing AnimatedDeer"
+msgstr ""
+
+#: src/components/easter_egg.py:30
+msgid "Loading deer images"
+msgstr ""
+
+#: src/components/easter_egg.py:43
+msgid "Deer images loaded successfully"
+msgstr ""
+
+#: src/components/easter_egg.py:45
+msgid "Failed to load deer images: {}"
+msgstr ""
+
+#: src/components/easter_egg.py:63
+msgid "AnimatedDeer initialized and placed"
+msgstr ""
+
+#: src/components/easter_egg.py:72
+msgid "Animation already in progress, ignoring toggle"
+msgstr ""
+
+#: src/components/easter_egg.py:77
+msgid "Toggling animation, current state: {}"
+msgstr ""
+
+#: src/components/easter_egg.py:83
+msgid "Creating white overlay"
+msgstr ""
+
+#: src/components/easter_egg.py:88
+msgid "Configuring large deer image"
+msgstr ""
+
+#: src/components/easter_egg.py:97
+msgid "Animation completed, new state: {}"
+msgstr ""
+
+#: src/components/easter_egg.py:101
+msgid "Restoring original UI"
+msgstr ""
+
+#: src/components/easter_egg.py:104
+msgid "Removing overlay"
+msgstr ""
+
+#: src/components/easter_egg.py:108
+msgid "Removing lyrics"
+msgstr ""
+
+#: src/components/easter_egg.py:112
+msgid "Restoring small deer"
+msgstr ""
+
+#: src/components/easter_egg.py:119
+msgid "Original UI restored"
+msgstr ""
+
+#: src/components/easter_egg.py:123
+msgid "Showing lyrics"
+msgstr ""
+
+#: src/components/easter_egg.py:135
+msgid "Lyrics displayed"
+msgstr ""
+
+#: src/components/easter_egg.py:141
+msgid "Checking if deer should appear (chance {}%): {}"
+msgstr ""
+
+#: src/components/mod_card.py:43
+msgid "Dodano: {}"
+msgstr ""
+
+#: src/components/mod_card.py:52
+msgid "Liczba plików: {}"
+msgstr ""
+
+#: src/components/mod_card.py:54
+msgid "Nie można odczytać zawartości ZIP"
+msgstr ""
+
+#: src/components/mod_card.py:69
+msgid "Zainstaluj"
+msgstr ""
+
+#: src/components/mod_card.py:78
+msgid "Usuń"
+msgstr ""
+
+#: src/components/tutorial.py:74
+msgid "← Previous"
+msgstr ""
+
+#: src/components/tutorial.py:82
+msgid "Got it!"
+msgstr ""
+
+#: src/components/tutorial.py:82
+msgid "Next →"
+msgstr ""
+
+#: src/components/ui/main_window.py:76 src/components/ui/main_window.py:135
+#: src/components/ui/main_window.py:386
 msgid "The Forest Mod Manager"
 msgstr ""
 
-#: src/ui/main_window.py:130
+#: src/components/ui/main_window.py:138
 msgid "Easy mod installation"
 msgstr ""
 
-#: src/ui/main_window.py:139
+#: src/components/ui/main_window.py:147
 msgid "logs"
 msgstr ""
 
-#: src/ui/main_window.py:193 src/ui/main_window.py:371
+#: src/components/ui/main_window.py:175
+msgid "First select MODAPI folder!"
+msgstr ""
+
+#: src/components/ui/main_window.py:208 src/components/ui/main_window.py:418
 msgid "Select MODAPI folder"
 msgstr ""
 
-#: src/ui/main_window.py:199 src/ui/main_window.py:374
+#: src/components/ui/main_window.py:215 src/components/ui/main_window.py:421
 msgid "Open mods folder"
 msgstr ""
 
-#: src/ui/main_window.py:206
+#: src/components/ui/main_window.py:253
 msgid "Select MODAPI main folder"
 msgstr ""
 
-#: src/ui/main_window.py:215
+#: src/components/ui/main_window.py:262
 msgid ""
 "Invalid folder!\n"
 "Select MODAPI main folder."
 msgstr ""
 
-#: src/ui/main_window.py:229
+#: src/components/ui/main_window.py:276
 msgid ""
 "✓ MODAPI Folder:\n"
 "{folder_name}"
 msgstr ""
 
-#: src/ui/main_window.py:262 src/ui/main_window.py:303
+#: src/components/ui/main_window.py:309 src/components/ui/main_window.py:350
 msgid "Select MODAPI folder first!"
 msgstr ""
 
-#: src/ui/main_window.py:270
+#: src/components/ui/main_window.py:317
 msgid "✓ ZIP file has been added!"
 msgstr ""
 
-#: src/ui/main_window.py:272
+#: src/components/ui/main_window.py:319
 msgid "Failed to create mod card"
 msgstr ""
 
-#: src/ui/main_window.py:276 src/ui/main_window.py:291
+#: src/components/ui/main_window.py:323 src/components/ui/main_window.py:338
 msgid "Error: {error}"
 msgstr ""
 
-#: src/ui/main_window.py:286
+#: src/components/ui/main_window.py:333
 msgid "✓ Mods installed successfully!"
 msgstr ""
 
-#: src/ui/main_window.py:316
+#: src/components/ui/main_window.py:363
 msgid "Folder mods/TheForest does not exist!"
 msgstr ""
 
-#: src/ui/main_window.py:358
+#: src/components/ui/tutorial_manager.py:38
 msgid ""
-"Drop ZIP file with mods here\n"
-"or click to select"
+"Hey there! 👋 Let's get your mods working!\n"
+"\n"
+"First, click the 'Select MODAPI folder' button to tell me where you "
+"installed MODAPI."
+msgstr ""
+
+#: src/components/ui/tutorial_manager.py:43
+msgid ""
+"Great! Now you can drag and drop your mod ZIP files here.\n"
+"\n"
+"Don't have any mods yet? No worries! You can download them from ModAPI "
+"website."
+msgstr ""
+
+#: src/components/ui/tutorial_manager.py:47
+msgid ""
+"When you add mods, they'll appear as cards like this.\n"
+"\n"
+"You can give them custom names (double-click to rename) and install them "
+"with one click!"
+msgstr ""
+
+#: src/components/ui/tutorial_manager.py:51
+msgid ""
+"Need the app in a different language?\n"
+"Just click this button to switch between available languages."
+msgstr ""
+
+#: src/components/ui/tutorial_manager.py:55
+msgid ""
+"And that's it! If you ever need to see this tutorial again, just click "
+"the '?' button down here.\n"
+"\n"
+"Happy modding! 🎮"
 msgstr ""
 

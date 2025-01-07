@@ -1,12 +1,13 @@
-"""
-src/__init__.py - Inicjalizacja głównego pakietu
-"""
+# src/__init__.py
 from .config import Config
+from .i18n import _, set_language
 from .installer import ModInstaller
-
-__version__ = "1.0.0"
+from .logger import setup_logger
 
 __all__ = [
+    'setup_logger',
     'Config',
-    'ModInstaller'
+    'ModInstaller',
+    '_',
+    'set_language'
 ]
