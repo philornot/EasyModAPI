@@ -91,10 +91,7 @@ class Tutorial:
         self.main_window.config.set_tutorial_shown(True)
 
     def _show_current_step(self):
-        """Shows current tutorial step"""
         step = self.steps[self.current_step]
-        logger.debug(f"Showing step {self.current_step}: {step.element_id}")
-
         element = self.element_map.get(step.element_id)
         if not element:
             logger.error(f"Element not found: {step.element_id}")
@@ -110,7 +107,7 @@ class Tutorial:
             self.main_window,
             step.message,
             element,
-            on_next=self.next_step if not step.required_action else None,
+            on_next=self.next_step,  # Usunięty warunek
             on_previous=self.previous_step if self.current_step > 0 else None,
             is_last=self.current_step == len(self.steps) - 1
         )
