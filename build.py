@@ -1,92 +1,69 @@
-"""
-build.py - Application build script
-"""
 import os
+import shutil
+import subprocess
 import sys
-from pathlib import Path
 
-from cx_Freeze import setup, Executable
+from src.config import CURRENT_VERSION
 
-# Ensure we're in the project root directory
-os.chdir(Path(__file__).parent)
+project_root = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, project_root)
 
-# Files to include
-additional_files = [
-    ('assets/icons', 'assets/icons'),  # Icons (including deer1.png and deer2.png)
-    ('assets/fonts', 'assets/fonts'),  # Fonts (Indie Flower and Roboto)
-    ('locales', 'locales'),  # Translations
-]
 
-# Dependencies
-build_exe_options = {
-    "packages": [
-        "os",
-        "tkinter",
-        "customtkinter",
-        "PIL",
-        "logging",
-        "webbrowser",
-        "random"
-    ],
-    "includes": [
-        "tkinter",
-        "tkinterdnd2"
-    ],
-    "include_files": additional_files,
-    "exclude_files": ["__pycache__"],
-    "include_msvcr": True,  # For Windows
-}
+def get_assets_path():
+    """Get the path to the assets directory."""
+    return os.path.join(project_root, 'assets')
 
-# Application icon
-icon_file = "assets/icons/app.ico" if sys.platform == "win32" else None
 
-# Create executable
-setup(
-    name="Forest Mod Manager",
-    version="0.6.9",
-    description="Mod Manager for The Forest",
-    author="philornot",
-    options={
-        "build_exe": build_exe_options,
-        "bdist_msi": {  # MSI installer options (Windows)
-            "upgrade_code": "{1234567-1234-1234-1234-123456789012}",
-            "add_to_path": False,
-            "initial_target_dir": r"[ProgramFilesFolder]\Forest Mod Manager",
-        }
-    },
-    executables=[
-        Executable(
-            "src/app.py",
-            base="Win32GUI" if sys.platform == "win32" else None,
-            icon=icon_file,
-            target_name="Forest Mod Manager.exe",
-            copyright="Copyright (c) 2025 philornot"
-        )
+def clean_build_artifacts():
+    """Remove previous build and dist directories."""
+    for dir_name in ['build', 'dist']:
+        full_path = os.path.join(project_root, dir_name)
+        if os.path.exists(full_path):
+            shutil.rmtree(full_path)
+
+
+def create_executable():
+    """Create a single executable for Forest Mod Manager."""
+    print(f"Creating executable for Forest Mod Manager v{CURRENT_VERSION}")
+
+    # Construct PyInstaller arguments
+    pyinstaller_args = [
+        'pyinstaller',
+        '--name', f'ForestModManager-v{CURRENT_VERSION}',
+        '--onefile',  # Single executable
+        '--windowed',  # No console window
+        '--add-data', f'{get_assets_path()}:assets',  # Include assets
+        '--icon', os.path.join(get_assets_path(), 'icons', 'app.ico'),  # Application icon
+        '--add-data', 'locales:locales',  # Include translation files
+        '--hidden-import', 'tkinter',  # Explicitly include Tkinter
+        '--hidden-import', 'customtkinter',  # Explicitly include CustomTkinter
+        '--hidden-import', 'PIL',  # Explicitly include Pillow
+        '--collect-data', 'tkinterdnd2',  # Collect tkinterdnd2 data
+        'src/app.py'  # Main entry point
     ]
-)
 
-
-# Post-build cleanup
-def cleanup():
-    """Remove unnecessary files after build"""
-    build_dir = Path("build")
-    if build_dir.exists():
-        # Remove .pyc files and __pycache__ directories
-        for path in build_dir.rglob("*.pyc"):
-            path.unlink()
-        for path in build_dir.rglob("__pycache__"):
-            for file in path.iterdir():
-                file.unlink()
-            path.rmdir()
-
-
-if __name__ == "__main__":
+    # Use subprocess to run PyInstaller
     try:
-        print("Building Forest Mod Manager...")
-        # setup() will be automatically called by cx_Freeze here
-        print("Build completed successfully!")
-        cleanup()
-        print("Cleanup completed!")
-    except Exception as e:
-        print(f"Build failed: {e}")
+        subprocess.run(pyinstaller_args, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Build failed with error: {e}")
         sys.exit(1)
+
+
+def main():
+    # Ensure we're running from the project root
+    os.chdir(project_root)
+
+    # Clean previous builds
+    clean_build_artifacts()
+
+    # Create the executable
+    create_executable()
+
+    # Print success message with executable location
+    print("\n🎉 Build completed successfully!")
+    print(f"Executable created: {os.path.join(project_root, 'dist', f'ForestModManager-v{CURRENT_VERSION}.exe')}")
+
+
+if __name__ == '__main__':
+    main()
