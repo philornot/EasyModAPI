@@ -126,11 +126,14 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         title_frame = ctk.CTkFrame(header_content, fg_color="transparent")
         title_frame.pack(expand=True)
 
-        Title(title_frame, text=_("The Forest Mod Manager")).pack(pady=(0, 5))
-        Subtitle(
+        self.title_label = Title(title_frame, text=_("The Forest Mod Manager"))
+        self.title_label.pack(pady=(0, 5))
+
+        self.subtitle_label = Subtitle(
             title_frame,
             text=_("Easy mod installation")
-        ).pack()
+        )
+        self.subtitle_label.pack()
 
         buttons_frame = ctk.CTkFrame(header_content, fg_color="transparent")
         buttons_frame.place(relx=1.0, rely=0.5, anchor="e", x=-30)
@@ -250,6 +253,11 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
             logger.debug("MODAPI folder selection cancelled")
 
     def _update_status(self):
+        """Update status label with current MODAPI path"""
+        if not self.config.modapi_path:
+            self.status_label.set_warning(_("First select MODAPI folder!"))
+            return
+
         path = Path(self.config.modapi_path)
         logger.debug(f"Updating status with path: {path}")
         self.status_label.set_success(
@@ -356,24 +364,33 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
                 open_file_explorer(logs_dir)
 
     def _toggle_language(self):
+        """Toggle between available languages"""
         new_lang = "pl" if self.config.language == "en" else "en"
         logger.info(f"Changing language to: {new_lang}")
         self.config.language = new_lang
         set_language(new_lang)
 
-        # Refresh UI texts
+        # Update window title and subtitle
         self.title(_("The Forest Mod Manager"))
-        self._update_status()
+        self.subtitle_label.configure(text=_("Easy mod installation"))
+
+        # Update status based on current state
+        if self.config.modapi_path:
+            self._update_status()
+        else:
+            self.status_label.set_warning(_("First select MODAPI folder!"))
 
         # Update language button
         self.lang_button.configure(
             text="polski" if new_lang == "en" else "english"
         )
 
-        # Update other UI elements
+        # Update drop zone
         self.drop_zone.label.configure(
             text=_("Drop ZIP file with mods here\nor click to select")
         )
+
+        # Update main buttons
         self.modapi_button.configure(text=_("Select MODAPI folder"))
         self.mods_folder_button.configure(text=_("Open mods folder"))
         self.logs_button.configure(text=_("logs"))
