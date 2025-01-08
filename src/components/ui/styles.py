@@ -1,37 +1,37 @@
 """
-src/ui/styles.py — Style dla interfejsu użytkownika
+src/ui/styles.py - UI styles and theme configuration
 """
 
 
 class Colors:
-    """Paleta kolorów aplikacji"""
-    # Główne kolory
-    PRIMARY = "#5D3FD3"  # Fioletowy
-    PRIMARY_HOVER = "#4930A6"  # Ciemniejszy fiolet
-    SECONDARY = "#A682FF"  # Jasny fiolet
-    ACCENT = "#FF6B6B"  # Koralowy akcent
+    """Application color palette"""
+    # Main colors
+    PRIMARY = "#5D3FD3"  # Purple
+    PRIMARY_HOVER = "#4930A6"  # Darker purple
+    SECONDARY = "#A682FF"  # Light purple
+    ACCENT = "#FF6B6B"  # Coral accent
 
-    # Tło i karty
-    BACKGROUND = "#1A1B26"  # Ciemne tło
-    CARD = "#24283B"  # Jaśniejsze tło dla kart
-    CARD_HOVER = "#2F354A"  # Hover dla kart
+    # Background and cards
+    BACKGROUND = "#1A1B26"  # Dark background
+    CARD = "#24283B"  # Lighter card background
+    CARD_HOVER = "#2F354A"  # Card hover state
 
-    # Tekst
-    TEXT = "#C0CAF5"  # Główny kolor tekstu
-    TEXT_SECONDARY = "#9AA5CE"  # Drugorzędny tekst
+    # Text
+    TEXT = "#C0CAF5"  # Primary text
+    TEXT_SECONDARY = "#9AA5CE"  # Secondary text
 
     # Status
-    ERROR = "#F7768E"  # Czerwony dla błędów
-    SUCCESS = "#9ECE6A"  # Zielony dla sukcesu
-    WARNING = "#E0AF68"  # Pomarańczowy dla ostrzeżeń
+    ERROR = "#F7768E"  # Red for errors
+    SUCCESS = "#9ECE6A"  # Green for success
+    WARNING = "#E0AF68"  # Orange for warnings
 
-    # ?
+    # Easter egg
     EASTER_EGG_TEXT = "#990000"
     EASTER_EGG_OVERLAY = "#FFFFFF"
 
 
 class Styles:
-    """Predefiniowane style dla komponentów"""
+    """Predefined component styles"""
 
     BUTTON = {
         "corner_radius": 10,

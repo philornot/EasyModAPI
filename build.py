@@ -1,5 +1,5 @@
 """
-build.py - Skrypt do budowania aplikacji
+build.py - Application build script
 """
 import os
 import sys
@@ -7,17 +7,17 @@ from pathlib import Path
 
 from cx_Freeze import setup, Executable
 
-# Upewnij się, że jesteśmy w głównym katalogu projektu
+# Ensure we're in the project root directory
 os.chdir(Path(__file__).parent)
 
-# Pliki do dołączenia
+# Files to include
 additional_files = [
-    ('assets/icons', 'assets/icons'),  # Ikony (w tym deer1.png i deer2.png)
-    ('assets/fonts', 'assets/fonts'),  # Czcionki (Indie Flower i Roboto)
-    ('locales', 'locales'),  # Tłumaczenia
+    ('assets/icons', 'assets/icons'),  # Icons (including deer1.png and deer2.png)
+    ('assets/fonts', 'assets/fonts'),  # Fonts (Indie Flower and Roboto)
+    ('locales', 'locales'),  # Translations
 ]
 
-# Zależności
+# Dependencies
 build_exe_options = {
     "packages": [
         "os",
@@ -34,13 +34,13 @@ build_exe_options = {
     ],
     "include_files": additional_files,
     "exclude_files": ["__pycache__"],
-    "include_msvcr": True,  # Dla Windows
+    "include_msvcr": True,  # For Windows
 }
 
-# Ikona aplikacji
+# Application icon
 icon_file = "assets/icons/app.ico" if sys.platform == "win32" else None
 
-# Stwórz executable
+# Create executable
 setup(
     name="Forest Mod Manager",
     version="0.6.9",
@@ -48,7 +48,7 @@ setup(
     author="philornot",
     options={
         "build_exe": build_exe_options,
-        "bdist_msi": {  # Opcje dla instalatora MSI (Windows)
+        "bdist_msi": {  # MSI installer options (Windows)
             "upgrade_code": "{1234567-1234-1234-1234-123456789012}",
             "add_to_path": False,
             "initial_target_dir": r"[ProgramFilesFolder]\Forest Mod Manager",
@@ -68,10 +68,10 @@ setup(
 
 # Post-build cleanup
 def cleanup():
-    """Usuwa niepotrzebne pliki po buildzie"""
+    """Remove unnecessary files after build"""
     build_dir = Path("build")
     if build_dir.exists():
-        # Usuń pliki .pyc i __pycache__
+        # Remove .pyc files and __pycache__ directories
         for path in build_dir.rglob("*.pyc"):
             path.unlink()
         for path in build_dir.rglob("__pycache__"):
@@ -83,7 +83,7 @@ def cleanup():
 if __name__ == "__main__":
     try:
         print("Building Forest Mod Manager...")
-        # Tu będzie automatycznie wywołany setup() przez cx_Freeze
+        # setup() will be automatically called by cx_Freeze here
         print("Build completed successfully!")
         cleanup()
         print("Cleanup completed!")

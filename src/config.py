@@ -1,5 +1,5 @@
 """
-src/config.py - Konfiguracja aplikacji
+src/config.py - Application configuration
 """
 import json
 import shutil
@@ -11,7 +11,7 @@ logger = setup_logger("Config")
 
 CONFIG_FILE = Path.home() / '.forest_mod_manager.json'
 MODS_DIR = Path.home() / '.forest_mod_manager' / 'mods'
-CURRENT_VERSION = "0.6.9"  # Aktualna wersja programu
+CURRENT_VERSION = "0.6.9"  # Current program version
 
 
 class Config:
@@ -21,8 +21,7 @@ class Config:
         'language': 'en',
         'tutorial_shown': False,
         'last_update_check': None,
-        'egg_chance': 10  # 10% szans domyślnie
-        # dla testów egg_chance można zwiększyć w init w main_window
+        'egg_chance': 10  # Default 10% chance
     }
 
     def __init__(self):
@@ -30,7 +29,7 @@ class Config:
         self._ensure_mods_dir()
 
     def _load_config(self) -> dict:
-        """Wczytuje lub tworzy konfigurację"""
+        """Load or create configuration"""
         try:
             if CONFIG_FILE.exists():
                 with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
@@ -40,12 +39,11 @@ class Config:
         except Exception as e:
             logger.error(f"Failed to load config: {e}", exc_info=True)
 
-        # Jeśli nie udało się wczytać, użyj domyślnej
         logger.info("Using default configuration")
         return self.DEFAULT_CONFIG.copy()
 
     def save(self):
-        """Zapisuje konfigurację"""
+        """Save configuration"""
         try:
             with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
                 json.dump(self.config, f, indent=4)
@@ -54,7 +52,7 @@ class Config:
             logger.error(f"Failed to save config: {e}", exc_info=True)
 
     def _ensure_mods_dir(self):
-        """Tworzy folder na mody jeśli nie istnieje"""
+        """Create mods directory if it doesn't exist"""
         try:
             MODS_DIR.mkdir(parents=True, exist_ok=True)
             logger.info(f"Mods directory ensured: {MODS_DIR}")
@@ -63,7 +61,7 @@ class Config:
 
     @property
     def modapi_path(self) -> str:
-        """Ścieżka do folderu MODAPI"""
+        """Path to MODAPI folder"""
         return self.config.get('modapi_path')
 
     @modapi_path.setter
@@ -72,23 +70,20 @@ class Config:
         self.save()
 
     def get_saved_mods(self) -> list:
-        """Zwraca listę zapisanych modów"""
+        """Returns list of saved mods"""
         return self.config.get('saved_mods', [])
 
     def save_mod_file(self, original_path: Path) -> Path:
         """
-        Kopiuje plik moda do folderu mods i zapisuje w konfiguracji.
-        Zwraca ścieżkę do zapisanego pliku.
+        Copy mod file to mods folder and save in configuration.
+        Returns path to saved file.
         """
         try:
-            # Przygotuj ścieżkę docelową
             target_path = MODS_DIR / original_path.name
 
-            # Skopiuj plik
             shutil.copy2(original_path, target_path)
             logger.info(f"Copied mod file to: {target_path}")
 
-            # Dodaj do listy zapisanych
             saved_mods = self.get_saved_mods()
             mod_info = {'filename': target_path.name}
 
@@ -104,14 +99,14 @@ class Config:
             raise
 
     def remove_mod_file(self, filename: str):
-        """Usuwa mod z konfiguracji i z dysku"""
+        """Remove mod from configuration and disk"""
         try:
-            # Usuń z konfiguracji
+            # Remove from config
             saved_mods = self.get_saved_mods()
             self.config['saved_mods'] = [m for m in saved_mods if m['filename'] != filename]
             self.save()
 
-            # Usuń plik
+            # Remove file
             mod_path = MODS_DIR / filename
             if mod_path.exists():
                 mod_path.unlink()
@@ -121,20 +116,20 @@ class Config:
             logger.error(f"Failed to remove mod file: {e}", exc_info=True)
 
     def was_tutorial_shown(self) -> bool:
-        """Sprawdza czy tutorial był pokazany"""
+        """Check if tutorial was shown"""
         return self.config.get('tutorial_shown', False)
 
     def set_tutorial_shown(self, shown: bool):
-        """Zapisuje informację o pokazaniu tutoriala"""
+        """Save information about tutorial being shown"""
         self.config['tutorial_shown'] = shown
         self.save()
 
     def get_last_update_check(self) -> str:
-        """Pobiera datę ostatniego sprawdzenia aktualizacji"""
+        """Get date of last update check"""
         return self.config.get('last_update_check')
 
     def set_last_update_check(self, date: str):
-        """Zapisuje datę sprawdzenia aktualizacji"""
+        """Save update check date"""
         self.config['last_update_check'] = date
         self.save()
 
@@ -153,6 +148,6 @@ class Config:
         return self.config.get('egg_chance', 10) / 100
 
     def set_egg_chance(self, chance: int):
-        """Ustawia szansę na pojawienie się easter egga (0-100)"""
-        self.config['egg_chance'] = max(0, min(100, chance))  # Ograniczenie do zakresu 0-100
+        """Set chance for easter egg appearance (0-100)"""
+        self.config['egg_chance'] = max(0, min(100, chance))  # Limit to 0-100 range
         self.save()

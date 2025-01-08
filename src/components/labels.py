@@ -1,13 +1,16 @@
+"""
+src/components/labels.py - Label components
+"""
 import customtkinter as ctk
 
+from src.logger import setup_logger
 from .ui.styles import Colors, Styles
-from ..logger import setup_logger
 
 logger = setup_logger()
 
 
 class Title(ctk.CTkLabel):
-    """Główny tytuł"""
+    """Main title label"""
 
     def __init__(self, *args, **kwargs):
         label_kwargs = Styles.TITLE.copy()
@@ -17,7 +20,7 @@ class Title(ctk.CTkLabel):
 
 
 class Subtitle(ctk.CTkLabel):
-    """Podtytuł"""
+    """Subtitle label"""
 
     def __init__(self, *args, **kwargs):
         label_kwargs = Styles.SUBTITLE.copy()
@@ -27,7 +30,7 @@ class Subtitle(ctk.CTkLabel):
 
 
 class StatusLabel(ctk.CTkLabel):
-    """Label do wyświetlania statusu"""
+    """Status display label"""
 
     def __init__(self, *args, **kwargs):
         label_kwargs = Styles.LABEL.copy()

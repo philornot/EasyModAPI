@@ -17,7 +17,7 @@ from src.components import (
 )
 from src.config import Config, MODS_DIR
 from src.i18n import _
-from src.i18n import set_language  # Import the translation function
+from src.i18n import set_language
 from src.installer import ModInstaller
 from src.logger import setup_logger
 from src.utils import get_asset_path
@@ -72,13 +72,10 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         logger.debug(f"TkinterDnD version: {self.TkdndVersion}")
 
         self.config = Config()
-        # self.config.set_egg_chance(100)  # odkomentuj do testów
         self.title(_("The Forest Mod Manager"))
         self.geometry("600x600")
 
-        # Ustaw język z konfiguracji
         set_language(self.config.language)
-
         self.mod_cards = []
 
         self._setup_window()
@@ -103,7 +100,6 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
             if sys.platform == "win32":
                 self.iconbitmap(default=icon_path)
             else:
-                # Dla innych systemów próbuj ustawić ikonę przez PhotoImage
                 try:
                     icon_image = Image.open(icon_path)
                     photo_image = ctk.CTkImage(
@@ -117,7 +113,6 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
             logger.warning(f"Failed to set window icon: {e}", exc_info=True)
 
     def _create_widgets(self):
-        """Tworzy widgety interfejsu"""
         logger.debug("Creating widgets")
 
         # Header
@@ -128,7 +123,6 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         header_content = ctk.CTkFrame(header, fg_color="transparent")
         header_content.pack(pady=10, fill="x", expand=True)
 
-        # Centralna kolumna z tytułem
         title_frame = ctk.CTkFrame(header_content, fg_color="transparent")
         title_frame.pack(expand=True)
 
@@ -138,7 +132,6 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
             text=_("Easy mod installation")
         ).pack()
 
-        # Przyciski w prawym górnym rogu
         buttons_frame = ctk.CTkFrame(header_content, fg_color="transparent")
         buttons_frame.place(relx=1.0, rely=0.5, anchor="e", x=-30)
 
@@ -172,11 +165,10 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
 
         self.status_label = StatusLabel(
             content,
-            text=_("First select MODAPI folder!")  # Default text when no MODAPI folder is selected
+            text=_("First select MODAPI folder!")
         )
         self.status_label.grid(row=0, column=0, pady=20, padx=20)
 
-        # Scrollowany kontener
         self.scrollable_frame = ctk.CTkScrollableFrame(
             content,
             fg_color="transparent",
@@ -188,7 +180,6 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
             sticky="nsew"
         )
 
-        # Strefa drop
         self.drop_zone = FileDropZone(
             self.scrollable_frame,
             on_file_drop=self._handle_zip,
@@ -199,7 +190,6 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         button_frame = ctk.CTkFrame(content, fg_color="transparent")
         button_frame.grid(row=2, column=0, padx=20, pady=(0, 20))
 
-        # Główne przyciski
         main_buttons = ctk.CTkFrame(button_frame, fg_color="transparent")
         main_buttons.pack(side="left")
 
@@ -217,26 +207,17 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         )
         self.mods_folder_button.pack(side="left", padx=5)
 
-        # Etykieta wersji
         self.version_label = VersionLabel(self, self.config)
-
-        # Przycisk pomocy
         self.help_button = HelpButton(self, self._show_tutorial)
 
-        # Dodaj easter egg (10% szans)
         if AnimatedDeer.should_appear(self.config):
             self.deer = AnimatedDeer(self)
-            logger.info("A mysterious deer has appeared.")
+            logger.info("A mysterious deer has appeared")
 
-        # Sprawdź aktualizacje
         self.after(1000, self.version_label.check_updates)
 
     def _show_tutorial(self):
-        """Pokazuje tutorial"""
-
         tutorial = Tutorial(self)
-
-        # Mapuj ID do faktycznych widgetów
         tutorial.element_map = {
             "modapi_button": self.modapi_button,
             "drop_zone": self.drop_zone,
@@ -244,7 +225,6 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
             "language_button": self.lang_button,
             "help_button": self.help_button
         }
-
         tutorial.start()
 
     def _select_modapi_folder(self):
@@ -312,11 +292,10 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
 
         try:
             saved_path = self.config.save_mod_file(zip_path)
-
             if self._add_mod_card(saved_path):
                 self.status_label.set_success(_("✓ ZIP file has been added!"))
             else:
-                raise Exception(_("Failed to create mod card"))
+                raise Exception("Failed to add mod card")
 
         except Exception as e:
             logger.error(f"Failed to handle ZIP file: {e}", exc_info=True)
@@ -338,7 +317,7 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
             self.status_label.set_error(_("Error: {error}").format(error=str(e)))
 
     def _remove_mod_card(self, mod_card):
-        logger.info(f"Removing mod card and file for: {mod_card.zip_path}")
+        logger.info(f"Removing mod card and file: {mod_card.zip_path}")
         self.config.remove_mod_file(mod_card.zip_path.name)
         mod_card.destroy()
         self.mod_cards.remove(mod_card)
@@ -377,45 +356,24 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
                 open_file_explorer(logs_dir)
 
     def _toggle_language(self):
-        """Toggle between Polish and English"""
         new_lang = "pl" if self.config.language == "en" else "en"
+        logger.info(f"Changing language to: {new_lang}")
         self.config.language = new_lang
         set_language(new_lang)
 
-        # Odśwież wszystkie teksty w aplikacji
+        # Refresh UI texts
         self.title(_("The Forest Mod Manager"))
         self._update_status()
 
-        # Znajdź i zaktualizuj przycisk języka
-        for widget in self.winfo_children():
-            if isinstance(widget, Card):  # To jest header
-                for content in widget.winfo_children():
-                    if isinstance(content, ctk.CTkFrame):  # To jest header_content
-                        for frame in content.winfo_children():
-                            if isinstance(frame, ctk.CTkFrame):  # To może być logs_button_frame
-                                for button in frame.winfo_children():
-                                    if isinstance(button, SecondaryButton):
-                                        if button.cget("text") in ["polski", "english"]:
-                                            button.configure(
-                                                text="polski" if new_lang == "en" else "english"
-                                            )
+        # Update language button
+        self.lang_button.configure(
+            text="polski" if new_lang == "en" else "english"
+        )
 
-        # Odśwież wszystkie teksty w UI
+        # Update other UI elements
         self.drop_zone.label.configure(
             text=_("Drop ZIP file with mods here\nor click to select")
         )
-
-        # Odśwież przyciski
-        for widget in self.winfo_children():
-            if isinstance(widget, Card):  # To jest content
-                for frame in widget.winfo_children():
-                    if isinstance(frame, ctk.CTkFrame) and frame.winfo_children():
-                        for button_frame in frame.winfo_children():
-                            if isinstance(button_frame, ctk.CTkFrame):
-                                for button in button_frame.winfo_children():
-                                    if isinstance(button, GradientButton):
-                                        if "MODAPI" in button.cget("text"):
-                                            button.configure(text=_("Select MODAPI folder"))
-                                    elif isinstance(button, SecondaryButton):
-                                        if "folder" in button.cget("text"):
-                                            button.configure(text=_("Open mods folder"))
+        self.modapi_button.configure(text=_("Select MODAPI folder"))
+        self.mods_folder_button.configure(text=_("Open mods folder"))
+        self.logs_button.configure(text=_("logs"))

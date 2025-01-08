@@ -1,14 +1,24 @@
 """
-src/utils.py - Funkcje pomocnicze
+src/utils.py - Utility functions
 """
 import os
 import sys
+
 from src.logger import setup_logger
 
 logger = setup_logger("Utils")
 
+
 def get_asset_path(relative_path):
-    """Zwraca właściwą ścieżkę do zasobów, działającą zarówno w trybie dev jak i w .exe"""
+    """
+    Returns proper path to resources, working in both dev mode and executable.
+
+    Args:
+        relative_path (str): Relative path to the asset
+
+    Returns:
+        str: Full path to the asset
+    """
     if getattr(sys, 'frozen', False):
         logger.debug(f"Running in exe mode. Base path: {sys._MEIPASS}")
         base_path = sys._MEIPASS

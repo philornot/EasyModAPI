@@ -1,5 +1,5 @@
 """
-src/app.py - Punkt wejściowy aplikacji
+src/app.py - Application entry point
 """
 import os
 
@@ -13,12 +13,12 @@ logger = setup_logger()
 
 
 def setup_appearance():
-    """Konfiguracja wyglądu aplikacji"""
+    """Configure application appearance"""
     logger.info("Setting up application appearance")
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("blue")
 
-    # Ładowanie czcionek
+    # Load fonts
     fonts = [
         "assets/fonts/Roboto/Roboto-Regular.ttf",
         "assets/fonts/IndieFlower-Regular.ttf"

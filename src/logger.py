@@ -1,5 +1,5 @@
 """
-src/logger.py - System logowania z kolorami i formatowaniem
+src/logger.py - Logging system with colors and formatting
 """
 import logging
 from datetime import datetime
@@ -7,64 +7,64 @@ from pathlib import Path
 
 import coloredlogs
 
-# Dodaj własny poziom WTF
-WTF = 60  # Wyższy niż CRITICAL (50)
+# Add custom WTF level
+WTF = 60  # Higher than CRITICAL (50)
 logging.addLevelName(WTF, 'WTF')
 
 
 def wtf(self, message, *args, **kwargs):
     """
-    What a Terrible Failure - dla rzeczy, które NIGDY nie powinny się zdarzyć.
-    Poziom logu zapożyczony z Androida.
+    What a Terrible Failure - for things that should NEVER happen.
+    Log level borrowed from Android.
     """
     if self.isEnabledFor(WTF):
         self._log(WTF, message, args, **kwargs)
 
 
-# Dodaj metodę wtf() do klasy Logger
+# Add wtf() method to Logger class
 logging.Logger.wtf = wtf
 
 
 class CustomFormatter(logging.Formatter):
     """
-    Formatter generujący logi w formacie:
-    timestamp[tab]<plik[tab]funkcja: linijka>
+    Formatter generating logs in format:
+    timestamp[tab]<file[tab]function: line>
     """
 
     def format(self, record):
-        # Pobierz timestamp w strefie lokalnej
+        # Get timestamp in local timezone
         timestamp = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
-        # Wyciągnij nazwę pliku z pełnej ścieżki
+        # Extract filename from full path
         filename = Path(record.pathname).name
 
-        # Sformatuj zgodnie z wymaganiami
+        # Format according to requirements
         location = f"<{filename}\t{record.funcName}: {record.lineno}>"
 
-        # Połącz wszystko z tabulatorami
+        # Combine everything with tabs
         prefix = f"{timestamp}\t{location}\t"
 
-        # Dodaj prefix do wiadomości
+        # Add prefix to message
         return f"{prefix}{record.getMessage()}"
 
 
 def cleanup_old_logs(log_dir: Path, max_logs: int = 15):
     """
-    Usuwa najstarsze pliki logów, jeśli ich liczba przekracza max_logs.
+    Remove oldest log files if their count exceeds max_logs.
 
     Args:
-        log_dir (Path): Ścieżka do folderu z logami
-        max_logs (int): Maksymalna liczba plików logów do zachowania
+        log_dir (Path): Path to logs folder
+        max_logs (int): Maximum number of log files to keep
     """
-    # Znajdź wszystkie pliki .log
+    # Find all .log files
     log_files = list(log_dir.glob("*.log"))
 
-    # Jeśli jest więcej plików niż max_logs
+    # If there are more files than max_logs
     if len(log_files) > max_logs:
-        # Sortuj po czasie modyfikacji (najstarsze pierwsze)
+        # Sort by modification time (oldest first)
         log_files.sort(key=lambda x: x.stat().st_mtime)
 
-        # Usuń nadmiarowe pliki (najstarsze)
+        # Remove excess files (oldest ones)
         files_to_remove = len(log_files) - max_logs
         for i in range(files_to_remove):
             log_files[i].unlink()
@@ -72,39 +72,39 @@ def cleanup_old_logs(log_dir: Path, max_logs: int = 15):
 
 def setup_logger(name="ForestModManager"):
     """
-    Konfiguruje i zwraca logger z kolorami i customowym formatowaniem.
+    Configure and return logger with colors and custom formatting.
 
     Args:
-        name (str): Nazwa loggera
+        name (str): Logger name
 
     Returns:
-        logging.Logger: Skonfigurowany logger
+        logging.Logger: Configured logger
     """
-    # Stwórz logger
+    # Create logger
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
 
-    # Wyczyść istniejące handlery
+    # Clear existing handlers
     logger.handlers = []
 
-    # Przygotuj folder na logi
+    # Prepare logs folder
     log_dir = Path.home() / '.forest_mod_manager' / 'logs'
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    # Usuń stare logi jeśli jest ich za dużo
+    # Remove old logs if there are too many
     cleanup_old_logs(log_dir)
 
-    # Stwórz nowy plik logu z timestampem
+    # Create new log file with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_file = log_dir / f"mod_manager_{timestamp}.log"
 
-    # Handler dla pliku
+    # File handler
     fh = logging.FileHandler(log_file, encoding='utf-8')
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(CustomFormatter())
     logger.addHandler(fh)
 
-    # Konfiguracja kolorów z dodanym WTF
+    # Color configuration with WTF
     LEVEL_STYLES = {
         'debug': {'color': 'cyan'},
         'info': {'color': 'green'},
@@ -114,7 +114,7 @@ def setup_logger(name="ForestModManager"):
         'wtf': {'color': 'magenta', 'bold': True, 'background': 'black'}
     }
 
-    # Handler dla konsoli z kolorami
+    # Console handler with colors
     coloredlogs.install(
         level='DEBUG',
         logger=logger,
@@ -126,20 +126,20 @@ def setup_logger(name="ForestModManager"):
     return logger
 
 
-# Przykład użycia:
+# Usage example:
 if __name__ == "__main__":
     logger = setup_logger()
 
-    logger.debug("To jest debug message")
-    logger.info("To jest info message")
-    logger.warning("To jest warning message")
-    logger.error("To jest error message")
-    logger.critical("To jest critical message")
-    logger.wtf("Co do... jak to się w ogóle stało?! 😱")
+    logger.debug("This is a debug message")
+    logger.info("This is an info message")
+    logger.warning("This is a warning message")
+    logger.error("This is an error message")
+    logger.critical("This is a critical message")
+    logger.wtf("How did this even happen?! 😱")
 
-    # Pokaż folder z logami
+    # Show logs folder
     log_dir = Path.home() / '.forest_mod_manager' / 'logs'
-    print("\nFolder z logami:", log_dir)
-    print("Aktualne pliki logów:")
+    print("\nLogs folder:", log_dir)
+    print("Current log files:")
     for log_file in sorted(log_dir.glob("*.log")):
         print(f"- {log_file.name}")

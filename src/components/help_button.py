@@ -1,12 +1,12 @@
 """
-src/ui/components/help_button.py - Przycisk pomocy
+src/ui/components/help_button.py - Help button component
 """
 import customtkinter as ctk
 from src.components.ui.styles import Colors
 
 
 class HelpButton(ctk.CTkButton):
-    """Przycisk pomocy w prawym dolnym rogu"""
+    """Help button positioned in the bottom right corner"""
 
     def __init__(self, master, command):
         super().__init__(
@@ -21,5 +21,5 @@ class HelpButton(ctk.CTkButton):
             hover_color=Colors.PRIMARY_HOVER
         )
 
-        # Pozycjonuj w prawym dolnym rogu
+        # Position in bottom right corner
         self.place(relx=1.0, rely=1.0, x=-20, y=-20, anchor="se")
