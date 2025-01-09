@@ -328,3 +328,38 @@ msgid ""
 "Happy modding! 🎮"
 msgstr ""
 
+msgid "Invalid file data"
+msgstr ""
+
+msgid "Invalid file format"
+msgstr ""
+
+msgid "Error processing file"
+msgstr ""
+
+msgid "Error processing selected file"
+msgstr ""
+
+msgid "Error selecting file"
+msgstr ""
+
+msgid "ZIP files only!"
+msgstr ""
+
+msgid "File dropped"
+msgstr ""
+
+msgid "Drop ignored - zone inactive"
+msgstr ""
+
+msgid "Invalid file type dropped"
+msgstr ""
+
+msgid "Error handling file drop"
+msgstr ""
+
+msgid "File selection cancelled"
+msgstr ""
+
+msgid "Error processing selected file"
+msgstr ""

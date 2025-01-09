@@ -101,3 +101,39 @@ msgstr "Need the app in a different language?\nJust click this button to switch 
 
 msgid "And that's it! If you ever need to see this tutorial again, just click the '?' button down here.\n\nHappy modding! 🎮"
 msgstr "And that's it! If you ever need to see this tutorial again, just click the '?' button down here.\n\nHappy modding! 🎮"
+
+msgid "Invalid file data"
+msgstr "Invalid file data"
+
+msgid "Invalid file format"
+msgstr "Invalid file format"
+
+msgid "Error processing file"
+msgstr "Error processing file"
+
+msgid "Error processing selected file"
+msgstr "Error processing selected file"
+
+msgid "Error selecting file"
+msgstr "Error selecting file"
+
+msgid "ZIP files only!"
+msgstr "ZIP files only!"
+
+msgid "File dropped"
+msgstr "File dropped"
+
+msgid "Drop ignored - zone inactive"
+msgstr "Drop ignored - zone inactive"
+
+msgid "Invalid file type dropped"
+msgstr "Invalid file type dropped"
+
+msgid "Error handling file drop"
+msgstr "Error handling file drop"
+
+msgid "File selection cancelled"
+msgstr "File selection cancelled"
+
+msgid "Error processing selected file"
+msgstr "Error processing selected file"

@@ -1,3 +1,4 @@
+from pathlib import Path
 from tkinter import filedialog
 
 from tkdnd import DND_FILES
@@ -48,18 +49,31 @@ class FileDropZone(Card):
             return
 
         try:
-            file_path = event.data
-            logger.info(f"File dropped: {file_path}")
+            # Convert the dropped data to Path object and handle potential errors
+            try:
+                file_path = Path(event.data)
+                logger.info(f"File dropped: {file_path}")
+            except (TypeError, AttributeError) as e:
+                logger.error(f"Invalid file path data: {e}")
+                self.label.set_error(_("Invalid file data"))
+                return
 
-            if str(file_path).lower().endswith('.zip'):
-                self._drag_active = False
-                self.configure(fg_color=Colors.CARD)
-                self.on_file_drop(file_path)
-            else:
-                logger.warning(f"Invalid file type dropped: {file_path}")
-                self.label.set_error(_("ZIP files only!"))
+            # Validate file extension
+            try:
+                if file_path.suffix.lower() == '.zip':
+                    self._drag_active = False
+                    self.configure(fg_color=Colors.CARD)
+                    self.on_file_drop(file_path)
+                else:
+                    logger.warning(f"Invalid file type dropped: {file_path}")
+                    self.label.set_error(_("ZIP files only!"))
+            except AttributeError as e:
+                logger.error(f"Error checking file extension: {e}")
+                self.label.set_error(_("Invalid file format"))
+
         except Exception as e:
             logger.error(f"Error handling file drop: {e}", exc_info=True)
+            self.label.set_error(_("Error processing file"))
 
     def _on_drag_enter(self, event):
         """Handle file drag enter"""
@@ -81,15 +95,28 @@ class FileDropZone(Card):
             logger.debug("Click ignored - zone inactive")
             return
 
-        logger.debug("Opening file dialog")
-        file_path = filedialog.askopenfilename(
-            title=_("Select ZIP file with mods"),
-            filetypes=[(_("ZIP Files"), "*.zip")]
-        )
+        try:
+            logger.debug("Opening file dialog")
+            file_path = filedialog.askopenfilename(
+                title=_("Select ZIP file with mods"),
+                filetypes=[(_("ZIP Files"), "*.zip")]
+            )
 
-        if file_path:
-            logger.info(f"File selected: {file_path}")
-            self.on_file_drop(file_path)
+            if not file_path:
+                logger.debug("File selection cancelled")
+                return
+
+            try:
+                file_path = Path(file_path)
+                logger.info(f"File selected: {file_path}")
+                self.on_file_drop(file_path)
+            except Exception as e:
+                logger.error(f"Error processing selected file: {e}")
+                self.label.set_error(_("Error processing selected file"))
+
+        except Exception as e:
+            logger.error(f"Error in file selection dialog: {e}", exc_info=True)
+            self.label.set_error(_("Error selecting file"))
 
     def activate(self):
         """Activate drop zone"""

@@ -101,3 +101,39 @@ msgstr "Potrzebujesz aplikacji w innym języku?\nPo prostu kliknij ten przycisk,
 
 msgid "And that's it! If you ever need to see this tutorial again, just click the '?' button down here.\n\nHappy modding! 🎮"
 msgstr "To wszystko! Jeśli kiedykolwiek będziesz chciał zobaczyć ten tutorial ponownie, po prostu kliknij przycisk '?' tutaj na dole.\n\nUdanego modowania! 🎮"
+
+msgid "Invalid file data"
+msgstr "Nieprawidłowe dane pliku"
+
+msgid "Invalid file format"
+msgstr "Nieprawidłowy format pliku"
+
+msgid "Error processing file"
+msgstr "Błąd przetwarzania pliku"
+
+msgid "Error processing selected file"
+msgstr "Błąd przetwarzania wybranego pliku"
+
+msgid "Error selecting file"
+msgstr "Błąd wyboru pliku"
+
+msgid "ZIP files only!"
+msgstr "Tylko pliki ZIP!"
+
+msgid "File dropped"
+msgstr "Upuszczono plik"
+
+msgid "Drop ignored - zone inactive"
+msgstr "Upuszczenie zignorowane - strefa nieaktywna"
+
+msgid "Invalid file type dropped"
+msgstr "Upuszczono plik o nieprawidłowym typie"
+
+msgid "Error handling file drop"
+msgstr "Błąd podczas obsługi upuszczania pliku"
+
+msgid "File selection cancelled"
+msgstr "Anulowano wybór pliku"
+
+msgid "Error processing selected file"
+msgstr "Błąd przetwarzania wybranego pliku"
