@@ -47,4 +47,4 @@ Leave a ⭐ on GitHub!
 ## ❤️ Podoba Ci się?
 Zostaw ⭐ na GitHubie!
 
-![icon](https://github.com/philornot/EasyModAPI/blob/master/assets/icons/app.png)
+![image](https://raw.githubusercontent.com/philornot/EasyModAPI/refs/heads/master/assets/icons/app.ico)
