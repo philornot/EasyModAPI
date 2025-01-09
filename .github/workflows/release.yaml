@@ -1,0 +1,82 @@
+name: Release Builder
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # Potrzebne do pobrania historii commitów
+
+    - name: Generate Changelog
+      id: changelog
+      run: |
+        # Znajdź ostatni stable tag
+        $lastTag = $(git describe --tags --abbrev=0 --match "v*" HEAD^) 2>$null
+        if ($lastTag) {
+          # Jeśli istnieje poprzedni tag, generuj changelog od niego
+          $changes = git log "$lastTag..HEAD" --pretty=format:"- %s" --reverse
+        } else {
+          # Jeśli to pierwszy release, weź wszystkie commity
+          $changes = git log --pretty=format:"- %s" --reverse
+        }
+        # Zapisz changelog do pliku (potrzebne do multiline output)
+        $changes | Out-File -FilePath changelog.txt -Encoding UTF8
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller build.spec
+
+    - name: Generate checksums
+      run: |
+        cd dist
+        Get-FileHash ForestModManager.exe -Algorithm SHA256 | Select-Object Hash | Out-File -Encoding UTF8 sha256sum.txt
+        Get-FileHash ForestModManager.exe -Algorithm MD5 | Select-Object Hash | Out-File -Encoding UTF8 md5sum.txt
+
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Forest Mod Manager ${{ github.ref_name }}
+        body: |
+          # Forest Mod Manager ${{ github.ref_name }}
+          
+          ## 🚀 What's New
+          $(cat changelog.txt)
+          
+          ## 📦 Download
+          This release was automatically built from source code by GitHub Actions.
+          
+          ## 🔒 File Hashes
+          SHA256: `$(cat dist/sha256sum.txt)`
+          MD5: `$(cat dist/md5sum.txt)`
+          
+          ## 🔍 Build Information
+          - Source commit: ${{ github.sha }}
+          - Build date: $(Get-Date -Format "yyyy-MM-dd HH:mm")
+
+        files: |
+          dist/ForestModManager.exe
+          dist/sha256sum.txt
+          dist/md5sum.txt
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
