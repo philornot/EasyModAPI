@@ -11,7 +11,7 @@ logger = setup_logger("Config")
 
 CONFIG_FILE = Path.home() / '.forest_mod_manager.json'
 MODS_DIR = Path.home() / '.forest_mod_manager' / 'mods'
-CURRENT_VERSION = "0.7.1"  # Current program version
+CURRENT_VERSION = "0.7.0"  # Current program version
 
 
 class Config:

@@ -12,92 +12,118 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.8'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
 
-      - name: Check version and create tag
-        id: check_version
-        run: |
-          # Pobierz CURRENT_VERSION z config.py
-          $version = Select-String -Path "src/config.py" -Pattern 'CURRENT_VERSION = "(.*)"' | ForEach-Object { $_.Matches.Groups[1].Value }
-          echo "Version from config: v$version"
+    - name: Check version and create tag
+      id: check_version
+      run: |
+        # Get CURRENT_VERSION from config.py
+        $version = Select-String -Path "src/config.py" -Pattern 'CURRENT_VERSION = "(.*)"' | ForEach-Object { $_.Matches.Groups[1].Value }
+        echo "Version from config: v$version"
+        
+        # Check if tag already exists
+        $tagExists = git tag -l "v$version"
+        
+        if ($tagExists) {
+          echo "Tag v$version already exists. Skipping release."
+          echo "should_release=false" >> $env:GITHUB_OUTPUT
+        } else {
+          echo "Creating new tag v$version"
           
-          # Sprawdź czy tag już istnieje
-          $tagExists = git tag -l "v$version"
+          # Get previous version if exists
+          $prevVersion = git describe --tags --abbrev=0 --match "v*" 2>$null
+          if ($prevVersion) {
+            $prevVersion = $prevVersion.TrimStart('v')
+            
+            # Split versions into parts
+            $current = $version.Split('.')
+            $prev = $prevVersion.Split('.')
+            
+            # Check if only patch version changed
+            $isPrerelease = $true
+            if ($current[0] -ne $prev[0] -or $current[1] -ne $prev[1]) {
+              $isPrerelease = $false
+            }
+            echo "is_prerelease=$isPrerelease" >> $env:GITHUB_OUTPUT
+          } else {
+            # First release is never a pre-release
+            echo "is_prerelease=false" >> $env:GITHUB_OUTPUT
+          }
           
-          if ($tagExists) {
-            echo "Tag v$version already exists. Skipping release."
-            echo "should_release=false" >> $env:GITHUB_OUTPUT
-          } else {
-            echo "Creating new tag v$version"
-            git tag "v$version"
-            echo "should_release=true" >> $env:GITHUB_OUTPUT
-            echo "version=$version" >> $env:GITHUB_OUTPUT
-          }
+          git tag "v$version"
+          echo "should_release=true" >> $env:GITHUB_OUTPUT
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+        }
 
-      - name: Generate Changelog
-        if: steps.check_version.outputs.should_release == 'true'
-        id: changelog
-        run: |
-          $lastTag = $(git describe --tags --abbrev=0 --match "v*" HEAD^) 2>$null
-          if ($lastTag) {
-            $changes = git log "$lastTag..HEAD" --pretty=format:"- %s" --reverse
-          } else {
-            $changes = git log --pretty=format:"- %s" --reverse
-          }
-          $changes | Out-File -FilePath changelog.txt -Encoding UTF8
+    - name: Generate Changelog
+      if: steps.check_version.outputs.should_release == 'true'
+      id: changelog
+      run: |
+        # Find last tag for changelog range
+        $lastTag = $(git describe --tags --abbrev=0 --match "v*" HEAD^) 2>$null
+        if ($lastTag) {
+          $changes = git log "$lastTag..HEAD" --pretty=format:"- %s" --reverse
+        } else {
+          # If no previous tag, get all commits
+          $changes = git log --pretty=format:"- %s" --reverse
+        }
+        $changes | Out-File -FilePath changelog.txt -Encoding UTF8
 
-      - name: Install dependencies
-        if: steps.check_version.outputs.should_release == 'true'
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pyinstaller
+    - name: Install dependencies
+      if: steps.check_version.outputs.should_release == 'true'
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
 
-      - name: Build with PyInstaller
-        if: steps.check_version.outputs.should_release == 'true'
-        run: |
-          pyinstaller build.spec
+    - name: Build with PyInstaller
+      if: steps.check_version.outputs.should_release == 'true'
+      run: |
+        pyinstaller build.spec
 
-      - name: Generate checksums
-        if: steps.check_version.outputs.should_release == 'true'
-        run: |
-          cd dist
-          Get-FileHash ForestModManager.exe -Algorithm SHA256 | Select-Object Hash | Out-File -Encoding UTF8 sha256sum.txt
-          Get-FileHash ForestModManager.exe -Algorithm MD5 | Select-Object Hash | Out-File -Encoding UTF8 md5sum.txt
+    - name: Generate checksums
+      if: steps.check_version.outputs.should_release == 'true'
+      run: |
+        cd dist
+        Get-FileHash ForestModManager.exe -Algorithm SHA256 | Select-Object Hash | Out-File -Encoding UTF8 sha256sum.txt
+        Get-FileHash ForestModManager.exe -Algorithm MD5 | Select-Object Hash | Out-File -Encoding UTF8 md5sum.txt
 
-      - name: Create Release
-        if: steps.check_version.outputs.should_release == 'true'
-        uses: softprops/action-gh-release@v1
-        with:
-          name: Forest Mod Manager v${{ steps.check_version.outputs.version }}
-          tag_name: v${{ steps.check_version.outputs.version }}
-          body: |
-            # Forest Mod Manager v${{ steps.check_version.outputs.version }}
-            
-            ## 🚀 What's New
-            $(cat changelog.txt)
-            
-            ## 📦 Download
-            This release was automatically built from source code by GitHub Actions.
-            
-            ## 🔒 File Hashes
-            SHA256: `$(cat dist/sha256sum.txt)`
-            MD5: `$(cat dist/md5sum.txt)`
-            
-            ## 🔍 Build Information
-            - Source commit: ${{ github.sha }}
-            - Build date: $(Get-Date -Format "yyyy-MM-dd HH:mm")
+    - name: Create Release
+      if: steps.check_version.outputs.should_release == 'true'
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Forest Mod Manager v${{ steps.check_version.outputs.version }}
+        tag_name: v${{ steps.check_version.outputs.version }}
+        prerelease: ${{ steps.check_version.outputs.is_prerelease == 'true' }}
+        body: |
+          # Forest Mod Manager v${{ steps.check_version.outputs.version }}
+          
+          ${{ steps.check_version.outputs.is_prerelease == 'true' && '> ⚠️ This is a pre-release version with patch changes only!' || '' }}
+          
+          ## 🚀 What's New
+          $(cat changelog.txt)
+          
+          ## 📦 Download
+          This release was automatically built from source code by GitHub Actions.
+          
+          ## 🔒 File Hashes
+          SHA256: `$(cat dist/sha256sum.txt)`
+          MD5: `$(cat dist/md5sum.txt)`
+          
+          ## 🔍 Build Information
+          - Source commit: ${{ github.sha }}
+          - Build date: $(Get-Date -Format "yyyy-MM-dd HH:mm")
 
-          files: |
-            dist/ForestModManager.exe
-            dist/sha256sum.txt
-            dist/md5sum.txt
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        files: |
+          dist/ForestModManager.exe
+          dist/sha256sum.txt
+          dist/md5sum.txt
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
