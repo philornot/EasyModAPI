@@ -27,6 +27,10 @@ Główne biblioteki:
 ### 🏗️ Struktura projektu
 
 ```
+.github/
+└── workflows/
+    └── release.yml    # Konfiguracja automatycznego buildu
+
 src/
 ├── ui/               # Interfejs użytkownika
 │   ├── components/   # Reużywalne komponenty
@@ -74,21 +78,52 @@ locales/             # Tłumaczenia
     - Type hints gdzie to możliwe
 
 2. **Commity**
-    - Krótkie, konkretne commity
-    - Opis po angielsku, zaczynamy wielką literą
+    - Krótkie, konkretne commity po angielsku
+    - Zaczynamy wielką literą
     - Format: `Add/Fix/Update/Remove: krótki opis`
 
 3. **Pull Requests**
     - Jeden PR = jedna funkcjonalność
     - Opisz dokładnie zmiany
-    - Dołącz screenshoty jeśli zmieniasz UI
+    - Dołącz screenshoty, jeśli zmieniasz UI
     - Upewnij się, że wszystko się buduje
 
 4. **Testowanie**
     - Przetestuj na Windows (główna platforma)
-    - Sprawdź czy działa drag & drop
+    - Sprawdź, czy działa drag & drop
     - Przetestuj instalację modów
-    - Sprawdź czy UI się nie psuje przy zmianie rozmiaru
+    - Sprawdź, czy UI się nie psuje przy zmianie rozmiaru
+
+### 🚢 Proces Wydawania Wersji
+
+1. **Ręczne Wydanie (obecnie zalecane)**
+    - Zaktualizuj wersję w `config.py` (`CURRENT_VERSION`)
+    - Upewnij się, że wszystkie zmiany są przetestowane
+    - Zrób commit i push zmian
+    - Stwórz i wypchnij tag:
+    ```bash
+    git tag v0.x.x
+    git push origin main
+    git push origin v0.x.x
+    ```
+
+2. **Automatyczne Wydanie (eksperymentalne)**
+    - Eksperymentujemy z automatycznymi wydaniami przez GitHub Actions
+    - Wystarczy zaktualizować `CURRENT_VERSION` w `config.py` i zrobić push do main
+    - GitHub Actions automatycznie:
+        - Stworzy tag
+        - Zbuduje program
+        - Stworzy wydanie
+        - Doda changelog z commitów
+    - Numeracja wersji:
+        - Zmiany w X.Y.Z gdzie zmienia się X lub Y -> pełne wydanie
+        - Zmiany tylko w Z -> wydanie wstępne
+    - Uwaga: To jest eksperymentalne i może nie działać poprawnie!
+
+3. **Po wydaniu**
+    - Sprawdź, czy build przeszedł pomyślnie
+    - Zweryfikuj sumy kontrolne
+    - Przetestuj zbudowany program
 
 ### 🎯 Co można zrobić?
 
@@ -136,6 +171,10 @@ Main libraries:
 ### 🏗️ Project Structure
 
 ```
+.github/
+└── workflows/
+    └── release.yml    # Automatic build configuration
+
 src/
 ├── ui/               # User interface
 │   ├── components/   # Reusable components
@@ -184,7 +223,7 @@ locales/             # Translations
 
 2. **Commits**
     - Short, specific commits
-    - Description in English, start with capital letter
+    - Start with capital letter
     - Format: `Add/Fix/Update/Remove: short description`
 
 3. **Pull Requests**
@@ -198,6 +237,37 @@ locales/             # Translations
     - Check if drag & drop works
     - Test mod installation
     - Verify UI doesn't break on resize
+
+### 🚢 Release Process
+
+1. **Manual Release (currently recommended)**
+    - Update version in `config.py` (`CURRENT_VERSION`)
+    - Make sure all changes are tested
+    - Commit and push your changes
+    - Create and push tag:
+    ```bash
+    git tag v0.x.x
+    git push origin main
+    git push origin v0.x.x
+    ```
+
+2. **Automatic Release (experimental)**
+    - We're experimenting with automatic releases via GitHub Actions
+    - Just update `CURRENT_VERSION` in `config.py` and push to main
+    - GitHub Actions will:
+        - Create tag automatically
+        - Build the program
+        - Create release
+        - Add changelog from commits
+    - Version numbering:
+        - Changes in X.Y.Z where X or Y changes -> full release
+        - Changes only in Z -> pre-release
+    - Note: This is experimental and might not work correctly yet!
+
+3. **Post-release**
+    - Check if build passed successfully
+    - Verify checksums
+    - Test the built program
 
 ### 🎯 What Can Be Done?
 
