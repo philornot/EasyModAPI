@@ -86,7 +86,6 @@ msgstr "Liczba plików: {count}"
 msgid "Added: {date}"
 msgstr "Dodano: {date}"
 
-# Tutorial messages
 msgid "Hey there! 👋 Let's get your mods working!\n\nFirst, click the 'Select MODAPI folder' button to tell me where you installed MODAPI."
 msgstr "Cześć! 👋 Zainstalujmy twoje mody!\n\nNajpierw kliknij przycisk 'Wybierz folder MODAPI', aby wskazać gdzie zainstalowałeś MODAPI."
 
@@ -134,6 +133,3 @@ msgstr "Błąd podczas obsługi upuszczania pliku"
 
 msgid "File selection cancelled"
 msgstr "Anulowano wybór pliku"
-
-msgid "Error processing selected file"
-msgstr "Błąd przetwarzania wybranego pliku"

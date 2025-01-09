@@ -86,7 +86,6 @@ msgstr "Files count: {count}"
 msgid "Added: {date}"
 msgstr "Added: {date}"
 
-# Tutorial messages
 msgid "Hey there! 👋 Let's get your mods working!\n\nFirst, click the 'Select MODAPI folder' button to tell me where you installed MODAPI."
 msgstr "Hey there! 👋 Let's get your mods working!\n\nFirst, click the 'Select MODAPI folder' button to tell me where you installed MODAPI."
 
@@ -134,6 +133,3 @@ msgstr "Error handling file drop"
 
 msgid "File selection cancelled"
 msgstr "File selection cancelled"
-
-msgid "Error processing selected file"
-msgstr "Error processing selected file"
